@@ -30,16 +30,16 @@ The JAP application is composed of three parts:
 ## Important
 1. Ensure that you set the path to your MiniZinc installation properly in the MZNWebserver/index.js file.
 2. To enable requests to and from the MiniZinc server, CORS must be enabled in your browser. This can be achieved by installing a browser extension like “Allow CORS”.
+3. The Admin dashboard for pocketbase is usually at localhost:8090/_ but if otherwise it will be displayed in the terminal once you serve the server. Default login is:
+    un: admin@admin.com
+    pw: adminadmin
 
 ## Development
+
 ### Environment Variables
 No environment variables are required for this project.
 
 ### Setting Up the Development Environment
-Run the following commands from the root of the directory:
-
-```
-cd client && npm run dev
-cd MZNWebserver && node index.js
-cd pocketbase && ./pocketbase serve
-```
+1. Navigate to the `client` folder and run `npm run dev`.
+2. Navigate to the `MZNWebserver` folder and run `node index.js`.
+3. Navigate to the `pocketbase` folder and run `./pocketbase serve`.
