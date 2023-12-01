@@ -1,0 +1,76 @@
+%problem 1
+% th eproblem can be also formulated using numbers only: n number of CRs, m number of ASSETS, p number of locations, q number of intels
+
+% enumerations
+
+
+CR = {CR1, CR2, CR3, CR4, CR5, CR6, CR7, CR8, CR9, CR10};
+
+ASSET = {RQ_1A_Predator, MQ_9_Reaper, RQ_4_Global_Hawk, RC_135_Rivet_Joint, E_8_JSTARS, U_2_Dragon_Lady, F_16};
+
+INTELL = {FMV, SIGINT, GMTI, WASP};
+
+NAI = {Mannheim, Karlsruhe, Baden_Baden, Buehl, Offenburg, Lahr_Schwarzwald, Loerrach};
+
+BASE = {Heidelberg , Freiburg_im_Breisgau};
+% input data, enumeratios are not sorted in python
+crl = [CR1, CR2, CR3, CR4, CR5, CR6, CR7, CR8, CR9, CR10];
+
+asset_list = [RQ_1A_Predator, MQ_9_Reaper, RQ_4_Global_Hawk, RC_135_Rivet_Joint, E_8_JSTARS, U_2_Dragon_Lady, F_16];
+
+nai_list = [Mannheim, Karlsruhe, Baden_Baden, Buehl, Offenburg, Lahr_Schwarzwald, Loerrach];
+
+base_list = [Heidelberg , Freiburg_im_Breisgau];
+
+% properties of CRS
+required_int = [FMV, WASP, SIGINT, FMV, GMTI, SIGINT, FMV, GMTI, SIGINT, FMV];
+
+priority = [2, 3, 1, 1, 2, 3, 4, 2, 3, 1];
+
+location = [Mannheim, Karlsruhe, Baden_Baden, Buehl, Offenburg, Lahr_Schwarzwald, Loerrach, Mannheim, Karlsruhe, Baden_Baden];  
+
+location_int = [1, 2, 3, 4, 5, 6, 7, 1, 2, 3];
+
+required_start_time = [420, 480, 480, 540, 660, 720, 780, 600, 900, 780];
+
+required_duration = [60, 120, 60, 60, 120, 60, 60, 120, 60, 120];
+
+ops_start_time = [420, 480, 480, 540, 660, 720, 780, 600, 900, 780];
+
+ops_duration = [60, 120, 60, 60, 120, 60, 60, 120, 60, 120];
+
+% properties of assets
+
+sensor = [| 1, 1, 0, 0, 0, 0, 1
+          | 0, 0, 1, 1, 0, 1, 1
+          | 1, 0, 1, 0, 1, 0, 0
+          | 0, 1, 1, 0, 1, 1, 1|];
+
+capacity = [480, 480, 480, 480, 480, 360, 360];
+%capacity = [8, 8, 8, 8, 8, 6, 6];
+
+on_station = [0, 0, 0, 0, 0, 0, 0];
+
+home = [Heidelberg, Heidelberg, Freiburg_im_Breisgau, Freiburg_im_Breisgau, Heidelberg, Freiburg_im_Breisgau, Heidelberg];
+home_int = [|1, 0
+            |1, 0
+            |0, 1
+            |0, 1
+            |1, 0
+            |0, 1
+            |1, 0|];         
+
+% vehicle routing problem 
+
+% the cost between each pair of nodes, this include 2 times the bases at the end
+cost = [|0, 53, 74, 77, 95, 106, 160, 24, 125,
+        |53, 0, 31, 35, 51, 61, 115, 50, 85,
+        |74, 31, 0, 16, 36, 46, 98, 67, 68,
+        |77, 35, 16, 0, 30, 40, 92, 71, 62,
+        |95, 51, 36, 30, 0, 26, 80, 88, 45,
+        |106, 61, 46, 40, 26, 0, 70, 98, 39,
+        |160, 115, 98, 92, 80, 70, 0, 150, 48,
+        |24, 50, 67, 71, 88, 98, 150, 0, 120,
+        |125, 85, 68, 62, 45, 39, 48, 120, 0|];
+
+
