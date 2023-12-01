@@ -23,6 +23,8 @@ The JAP application is composed of three parts:
 2. **The Minizinc Server:** A lightweight Express server with endpoints for processing payloads through MiniZinc engines.
 3. **The Pocketbase Server:** An open-source backend in a single file that manages persistence for the application.
 
+![UML Diagram:](UML_JAP.png)
+
 ## Usage
 
 ## Important
