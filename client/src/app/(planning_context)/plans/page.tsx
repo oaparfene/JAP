@@ -266,10 +266,14 @@ export default function Home() {
     const [openAllocation, setOpenAllocation] = useState(false);
     const { savePlan } = useData()
 
+    console.log('activePlanIndex', activePlanIndex)
     console.log('plans', plans)
 
     const planReqs = plans[activePlanIndex] ? plans[activePlanIndex].requirements : []
     const planAssets = plans[activePlanIndex] ? plans[activePlanIndex].assets : []
+
+    console.log('planReqs', planReqs)
+    console.log('planAssets', planAssets)
 
     const data_main: any = [
         [
@@ -291,13 +295,16 @@ export default function Home() {
 
     if (plans[activePlanIndex]) {
         plans[activePlanIndex].allocation.forEach((task, i) => {
-            data_main.push(["CR" + task.Requirement_to_Collect, task.Asset_Used, task.Start, task.End])
+            data_main.push(["CR" + task.Requirement_to_Collect, task.Asset_Used, new Date(task.Start), new Date(task.End)])
         })
 
         plans[activePlanIndex].allocation.forEach((task, i) => {
-            data_inv.push([task.Asset_Used, "CR" + task.Requirement_to_Collect, task.Start, task.End])
+            data_inv.push([task.Asset_Used, "CR" + task.Requirement_to_Collect, new Date(task.Start), new Date(task.End)])
         })
     }
+
+    console.log('data_main', data_main)
+    console.log('data_inv', data_inv)
 
     const location_data = [] as [string, [number, number]][]
     const flight_data = [] as [string, [number, number][]][]
@@ -316,6 +323,9 @@ export default function Home() {
             }
         })
     }
+
+    console.log('location_data', location_data)
+    console.log('flight_data', flight_data)
 
     const removeReqsFromPlanHandler = () => {
         if (!plans[activePlanIndex]) return
@@ -388,9 +398,9 @@ export default function Home() {
         <Box sx={{ px: 8, pb: 8, pt: 1 }}>
 
             <Tabs value={tabValue} onChange={handleTabChange} centered>
-                <Tab icon={<TableChartIcon />} label="tabular" {...a11yProps(0)} />
-                <Tab icon={<ViewTimelineIcon />} label="gantt" {...a11yProps(1)} />
-                <Tab icon={<MapIcon />} label="map" {...a11yProps(2)} />
+                <Tab icon={<TableChartIcon />} label="" {...a11yProps(0)} />
+                <Tab icon={<ViewTimelineIcon />} label="" {...a11yProps(1)} />
+                <Tab icon={<MapIcon />} label="" {...a11yProps(2)} />
             </Tabs>
 
             <CustomTabPanel value={tabValue} index={0}>

@@ -115,7 +115,7 @@ export default function Home() {
     if (plans[activePlanIndex]) {
         plans[activePlanIndex].assets.forEach((asset, i) => {
             data_main.push([asset.UniquePlatformID, '', 
-            asset.AvailableFrom,
+            new Date(asset.AvailableFrom),
             new Date(
             )])
         })
@@ -160,9 +160,9 @@ export default function Home() {
         <Box sx={{ px: 8, pb: 8, pt: 1 }}>
 
             <Tabs value={tabValue} onChange={handleTabChange} centered>
-                <Tab icon={<TableChartIcon />} label="tabular" {...a11yProps(0)} />
-                <Tab icon={<ViewTimelineIcon />} label="gantt" {...a11yProps(1)} />
-                <Tab icon={<MapIcon />} label="map" {...a11yProps(2)} />
+                <Tab icon={<TableChartIcon />} label="" {...a11yProps(0)} />
+                <Tab icon={<ViewTimelineIcon />} label="" {...a11yProps(1)} />
+                <Tab icon={<MapIcon />} label="" {...a11yProps(2)} />
             </Tabs>
 
             <CustomTabPanel value={tabValue} index={0}>

@@ -275,7 +275,7 @@ export default function RootLayout({
                 component="main"
                 sx={{ flexGrow: 1, p: 0, width: { sm: `calc(100% - ${drawerWidth}px)` } }}
               >
-                <Toolbar />
+                {/* <Toolbar /> */}
                 {children}
               </Box>
             </Box>
