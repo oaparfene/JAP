@@ -40,6 +40,6 @@ The JAP application is composed of three parts:
 No environment variables are required for this project.
 
 ### Setting Up the Development Environment
-1. Navigate to the `client` folder and run `npm run dev`.
+1. Navigate to the `client` folder and run `npm run build` followed by `npm run start`.
 2. Navigate to the `MZNWebserver` folder and run `node index.js`.
 3. Navigate to the `pocketbase` folder and run `./pocketbase serve`.
