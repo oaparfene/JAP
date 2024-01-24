@@ -13,7 +13,7 @@ app.listen(PORT, () => console.log(`Server running on: http://localhost:${PORT}`
 app.get('/', (req, res) => {
     console.log('[TEST]');
 
-    res.send('Hello from HomePage.');
+    res.send('Minizinc Webserver up and running.');
 });
 
 app.post('/chuffed', (req, res) => {
