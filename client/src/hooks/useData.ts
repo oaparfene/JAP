@@ -83,55 +83,10 @@ export const useData = () => {
     const { BackendAPIURL } = useContext(SettingsContext)
     const pb = new PocketBase(BackendAPIURL);
 
-    useEffect(() => {
-        fetchAssetsFromBackend()
-        fetchCRsFromBackend()
-        fetchPlansFromBackend()
-        // Subscribe to changes in any record in the collection
-        // pb.collection('Requirements').subscribe('*', function (e) {
-        //     console.log("from subscription");
-        //     console.log(e.action);
-        //     console.log(e.record);
-        //     const item = e.record;
-        //     if (e.action === 'create') {
-        //         // check if the record is already in the list
-        //         const index = allRequirements.findIndex((cr) => cr.db_id === e.record.id);
-
-        //         // if not, add it
-        //         if (index === -1) {
-        //             setAllRequirements([...allRequirements, {
-        //                 db_id: item.id,
-        //                 ID: allRequirements.length,
-        //                 Operation: item.Operation,
-        //                 Requester: item.Requester,
-        //                 CR_Rank: item.CR_Rank,
-        //                 Justification: item.Justification,
-        //                 Location: item.Location,
-        //                 Coordinates: item.Coordinates,
-        //                 Target_ID: item.Target_ID,
-        //                 Location_Category: item.Location_Category,
-        //                 Coll_Start_Time: item.Coll_Start_Time,
-        //                 Coll_End_Time: item.Coll_End_Time,
-        //                 Sensor_Visibility: item.Sensor_Visibility,
-        //                 LTIOV: item.LTIOV,
-        //                 Required_Information: item.Required_Information,
-        //                 Intel_Discipline: item.Intel_Discipline,
-        //                 Required_Product: item.Required_Product,
-        //                 ER_Report_Frequency: item.ER_Report_Frequency,
-        //                 Recurrance: item.Recurrance,
-        //                 RP_Remarks: item.RP_Remarks,
-        //                 Reporting_Instructions: item.Reporting_Instructions,
-        //                 ER_Remarks: item.ER_Remarks,
-        //             }])
-        //         }
-        //     }
-        // });
-    }, [])
-
 
     const fetchPlansFromBackend = async () => {
         fetch(`${BackendAPIURL}/api/collections/Plans/records?expand=assets,requirements,allocation,flightPlans`).then(res => res.json().then(data => {
-            setAllPlans(data.items.map((item: any, index: number) => {
+            const plans_from_data = data.items.map((item: any, index: number) => {
                 return {
                     db_id: item.id,
                     name: item.name,
@@ -151,8 +106,9 @@ export const useData = () => {
                     allocation: item.expand?.allocation,
                     flightPlans: item.expand?.flightPlans
                 }
-            }))
+            })
             console.log("fetching Plans:", data)
+            setAllPlans(plans_from_data)
         }
         )).catch(err => {
             console.log(err)
@@ -162,7 +118,7 @@ export const useData = () => {
 
     const fetchAssetsFromBackend = async () => {
         fetch(`${BackendAPIURL}/api/collections/Assets/records`).then(res => res.json().then(data => {
-            setAllAssets(data.items.map((item: any, index: number) => {
+            const assets_from_data = data.items.map((item: any, index: number) => {
                 return {
                     db_id: item.id,
                     ID: index,
@@ -174,8 +130,9 @@ export const useData = () => {
                     Location: item.Location,
                     Capacity: item.Capacity
                 }
-            }))
+            })
             //console.log(data)
+            setAllAssets(assets_from_data)
         })).catch(err => {
             console.log(err)
             setAllAssets(EventAssets.map((item: any, index: number) => {
@@ -200,7 +157,7 @@ export const useData = () => {
         try {
             const res = await pb.collection('Requirements').getFullList()
             //console.log("through sdk: ", res)
-            setAllRequirements(res.map((item: any, index: number) => {
+            const reqs_from_data = res.map((item: any, index: number) => {
                 return {
                     db_id: item.id,
                     ID: index,
@@ -225,7 +182,8 @@ export const useData = () => {
                     Reporting_Instructions: item.Reporting_Instructions,
                     ER_Remarks: item.ER_Remarks,
                 }
-            }))
+            })
+            setAllRequirements(reqs_from_data)
         } catch (err) {
             console.log(err)
         }
@@ -406,6 +364,7 @@ export const useData = () => {
         removeCRs,
         fetchAssetsFromBackend,
         fetchCRsFromBackend,
+        fetchPlansFromBackend,
         uploadCRtoBackend,
         uploadAssetToBackend,
         savePlan,

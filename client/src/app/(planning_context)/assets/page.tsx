@@ -4,7 +4,7 @@ import { PlanSelector } from "@/components/PlanSelector"
 import { generateDataFromORBAT } from "@/constants"
 import { useContext } from "react"
 import { JAPContext } from "../../context"
-import { Alert, Box, Button, Snackbar, Tab, Tabs, Typography } from "@mui/material"
+import { Alert, Box, Button, IconButton, Snackbar, Tab, Tabs, Typography } from "@mui/material"
 import { DataGrid, GridColDef, GridRowId } from "@mui/x-data-grid"
 import { useState } from "react"
 import MapView from "@/components/MapView"
@@ -15,6 +15,8 @@ import TableChartIcon from '@mui/icons-material/TableChart';
 import { Asset } from "@/hooks/usePlan"
 import { CustomAssetsToolbar } from "@/components/ExcelExport"
 import dynamic from 'next/dynamic';
+import { useData } from "@/hooks/useData"
+import RefreshIcon from '@mui/icons-material/Refresh';
 
 const ClientSideMapView = dynamic(() => import('../../../components/MapView'), {
     ssr: false,
@@ -97,11 +99,11 @@ export default function Home() {
     const [selectedRows, setSelectedRows] = useState<any[]>([])
     const [amountOfAssetsAdded, setAmountOfAssetsAdded] = useState<number>(0)
     const [open, setOpen] = useState(false);
+    const { fetchAssetsFromBackend } = useData();
 
-    console.log('allAssets', allAssets)
+    // console.log('allAssets', allAssets)
 
-    const allRows = allAssets
-    const rows = allRows.filter((asset) => !allPlans[activePlanIndex]?.assets?.find(el => el.ID === asset.ID))
+    const rows = allAssets.filter((asset) => !allPlans[activePlanIndex]?.assets?.find(el => el.ID === asset.ID))
 
     const data_main: any = [
         [
@@ -166,15 +168,25 @@ export default function Home() {
             </Tabs>
 
             <Box sx={{ mt: 2 }}>
-                <PlanSelector plans={allPlans} newPlan={newPlan} activePlanIndex={activePlanIndex} setActivePlanIndex={setActivePlanIndex} />
+                <PlanSelector />
             </Box>
 
             <CustomTabPanel value={tabValue} index={0}>
-                <Typography
-                    variant="h5"
-                    component="h5"
-                    sx={{ textAlign: 'left', mt: 0, mb: 3 }}
-                >Collection Assets:</Typography>
+                <Box sx={{ display: 'flex', justifyContent: "begin", alignItems: "center", width: 'full', mb: 3 }}>
+
+                    <Typography
+                        variant="h5"
+                        component="h5"
+                        sx={{ textAlign: 'left', mt: 0 }}
+                    >Collection Assets</Typography>
+
+                    <IconButton onClick={() => {
+                        fetchAssetsFromBackend();
+                    }}>
+                        <RefreshIcon />
+                    </IconButton>
+
+                </Box>
 
                 <Button variant='contained' sx={{ mb: 2 }} onClick={addToPlanHandler}>Add Selection to Plan</Button>
 

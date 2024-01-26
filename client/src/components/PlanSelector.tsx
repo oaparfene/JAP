@@ -1,10 +1,14 @@
 'use client'
 
 import { Modal, Box, Stack, Typography, TextField, Button, List, ListItem, ListItemButton, ListItemIcon, ListItemText, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, IconButton } from "@mui/material"
-import { useState } from "react"
+import { useContext, useState } from "react"
 import { Plan, usePlan } from "../hooks/usePlan"
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
+import { JAPContext } from "@/app/context";
+import RefreshIcon from '@mui/icons-material/Refresh';
+import { useData } from "@/hooks/useData";
+
 
 const style = {
     position: 'absolute' as 'absolute',
@@ -18,25 +22,20 @@ const style = {
     p: 4,
 };
 
-interface PlanSelectorProps {
-    plans: Plan[],
-    newPlan: (name: string) => void,
-    activePlanIndex: number,
-    setActivePlanIndex: (index: number) => void
-}
-
-export const PlanSelector = (props: PlanSelectorProps) => {
+export const PlanSelector = () => {
+    const { newPlan, activePlanIndex, setActivePlanIndex, allPlans } = useContext(JAPContext);
     const [openNewPlan, setOpenNewPlan] = useState(false);
     const [newPlanName, setNewPlanName] = useState('');
+    const { fetchPlansFromBackend } = useData();
 
     const handleNewPlan = (name: string) => {
-        props.newPlan(name)
+        newPlan(name)
     }
 
     const handleChange = (event: SelectChangeEvent) => {
         const selectedPlanName = event.target.value as string;
-        const selectedPlanIndex = props.plans.findIndex(plan => plan.name === selectedPlanName);
-        props.setActivePlanIndex(selectedPlanIndex);
+        const selectedPlanIndex = allPlans.findIndex(plan => plan.name === selectedPlanName);
+        setActivePlanIndex(selectedPlanIndex);
     };
 
     return (
@@ -48,6 +47,12 @@ export const PlanSelector = (props: PlanSelectorProps) => {
             gap: 4,
         }}>
 
+            <IconButton onClick={() => {
+                setOpenNewPlan(true)
+            }}>
+                <CreateNewFolderIcon />
+            </IconButton>
+
             <FormControl sx={{
                 minWidth: 120,
             }}>
@@ -55,20 +60,20 @@ export const PlanSelector = (props: PlanSelectorProps) => {
                 <Select
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
-                    value={props.plans[props.activePlanIndex]?.name || ''}
+                    value={allPlans[activePlanIndex]?.name || ''}
                     label="Plan"
                     onChange={handleChange}
                 >
-                    {props.plans.map((plan, index) => (
+                    {allPlans.map((plan, index) => (
                         <MenuItem key={index} value={plan?.name}>{plan?.name}</MenuItem>
                     ))}
                 </Select>
             </FormControl>
 
             <IconButton onClick={() => {
-                setOpenNewPlan(true)
+                fetchPlansFromBackend();
             }}>
-                <CreateNewFolderIcon />
+                <RefreshIcon />
             </IconButton>
 
             <Modal

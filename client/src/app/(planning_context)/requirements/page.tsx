@@ -293,7 +293,7 @@ export default function Home() {
             </Tabs>
 
             <Box sx={{ mt: 2 }}>
-                <PlanSelector plans={allPlans} newPlan={newPlan} activePlanIndex={activePlanIndex} setActivePlanIndex={setActivePlanIndex} />
+                <PlanSelector />
             </Box>
 
             <CustomTabPanel value={tabValue} index={0}>

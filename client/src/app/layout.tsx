@@ -30,6 +30,7 @@ import { useData } from '@/hooks/useData';
 import SettingsIcon from '@mui/icons-material/Settings';
 import css from 'styled-jsx/css'
 import { useRouter } from 'next/navigation';
+import { ALL } from 'dns';
 export default function RootLayout({
   children,
 }: {
@@ -51,9 +52,9 @@ export default function RootLayout({
   const [BackendAPIURL, setBackendAPIURL] = React.useState<string>("http://localhost:8090");
   const [MZNAPIURL, setMZNAPIURL] = React.useState<string>("http://localhost:5000");
 
-  // React.useEffect(() => {
-  //   setPlans(allPlans)
-  // }, [allPlans])
+  React.useEffect(() => {
+    setActivePlanIndex(allPlans.length - 1)
+  }, [allPlans])
 
 
   const handleToggleDrawer = () => {

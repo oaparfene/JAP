@@ -78,17 +78,19 @@ export interface Requirement {
 }
 
 export const usePlan = () => {
-    const { allPlans: plans, setAllPlans: setPlans, activePlanIndex, setActivePlanIndex } = useContext(JAPContext)
-    const { savePlan } = useData()
+    const { allPlans, setAllPlans, activePlanIndex, setActivePlanIndex } = useContext(JAPContext)
+    const { savePlan, fetchPlansFromBackend } = useData()
+
+    console.log('allPlans: ', allPlans)
 
     const getPlan = () => {
-        if (plans)
-            return plans[activePlanIndex]
+        if (allPlans)
+            return allPlans[activePlanIndex]
         return { db_id: "", name: 'No Plan', assets: [], requirements: [], allocation: [], flightPlans: [] }
     }
 
     const newPlan = async (name: string) => {
-        console.log("all current plan: ", plans)
+        console.log("all current plan: ", allPlans)
         const plan = {
             name: name,
             assets: [],
@@ -106,19 +108,20 @@ export const usePlan = () => {
             allocation: [],
             flightPlans: []
         }
-        var tempPlans = plans
+        var tempPlans = allPlans
         console.log('tempPlans: ', tempPlans)
         tempPlans.push(savedPlan)
         console.log('pushed: ', savedPlan)
-        setPlans(tempPlans)
+        setAllPlans(tempPlans)
         setActivePlanIndex(tempPlans.length - 1)
         console.log('set active plan index to: ', tempPlans.length - 1)
+        fetchPlansFromBackend()
         //console.log('plans: ', plans)
         //console.log('activePlanIndex: ', activePlanIndex)
     }
 
     const addCRsToPlan = (CRsToAdd: Requirement[]) => {
-        var tempPlans = plans
+        var tempPlans = allPlans
         var plan = tempPlans[activePlanIndex]
         const updatedPlan = {
             db_id: plan.db_id,
@@ -133,7 +136,7 @@ export const usePlan = () => {
     }
 
     const removeCRsFromPlan = (CRsToRemove: Requirement[]) => {
-        var tempPlans = plans
+        var tempPlans = allPlans
         var plan = tempPlans[activePlanIndex]
         const updatedPlan = {
             db_id: plan.db_id,
@@ -148,7 +151,7 @@ export const usePlan = () => {
     }
 
     const addAssetsToPlan = (assetsToAdd: Asset[]) => {
-        var tempPlans = plans
+        var tempPlans = allPlans
         var plan = tempPlans[activePlanIndex]
         console.log('plan', plan)
         const updatedPlan = {
@@ -164,7 +167,7 @@ export const usePlan = () => {
     }
 
     const removeAssetsFromPlan = (assetsToRemove: Asset[]) => {
-        var tempPlans = plans
+        var tempPlans = allPlans
         var plan = tempPlans[activePlanIndex]
         const updatedPlan = {
             db_id: plan.db_id,
@@ -179,7 +182,7 @@ export const usePlan = () => {
     }
 
     const addTasksToPlan = (tasksToAdd: Task[]) => {
-        var tempPlans = plans
+        var tempPlans = allPlans
         var plan = tempPlans[activePlanIndex]
         const updatedPlan = {
             db_id: plan.db_id,
@@ -194,7 +197,7 @@ export const usePlan = () => {
     }
 
     const addFlightPlansToPlan = (flightPlansToAdd: FlightPlan[]) => {
-        var tempPlans = plans
+        var tempPlans = allPlans
         var plan = tempPlans[activePlanIndex]
         const updatedPlan = {
             db_id: plan.db_id,
@@ -224,8 +227,8 @@ export const usePlan = () => {
     }, [])
 
     return {
-        plans,
-        setPlans,
+        plans: allPlans,
+        setPlans: setAllPlans,
         getPlan,
         addAssetsToPlan,
         removeAssetsFromPlan,

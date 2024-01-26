@@ -5,7 +5,7 @@ import * as XLSX from 'xlsx';
 import { generateDataFromORBAT, crs } from "@/constants"
 import { useContext, useEffect } from "react"
 import { JAPContext } from "../../context"
-import { Alert, Box, Button, CircularProgress, MenuItem, Snackbar, Stack, Tab, Tabs, Typography } from "@mui/material"
+import { Alert, Box, Button, CircularProgress, IconButton, MenuItem, Snackbar, Stack, Tab, Tabs, Typography } from "@mui/material"
 import { DataGrid, GridColDef, gridFilteredSortedRowIdsSelector, GridRowId, GridToolbar, GridToolbarContainer, GridToolbarExportContainer, gridVisibleColumnFieldsSelector, useGridApiContext } from "@mui/x-data-grid"
 import { useState } from "react"
 import { Asset, Requirement } from "@/hooks/usePlan"
@@ -19,6 +19,7 @@ import { CustomReqsToolbar, CustomAssetsToolbar, handleExportPlan } from "@/comp
 import dynamic from 'next/dynamic';
 import { toPng } from "html-to-image";
 import { useData } from "@/hooks/useData";
+import RefreshIcon from '@mui/icons-material/Refresh';
 
 const ClientSideMapView = dynamic(() => import('../../../components/MapView'), {
     ssr: false,
@@ -264,7 +265,7 @@ export default function Home() {
     const [openCR, setOpenCR] = useState(false);
     const [openAsset, setOpenAsset] = useState(false);
     const [openAllocation, setOpenAllocation] = useState(false);
-    const { savePlan } = useData()
+    const { savePlan, fetchPlansFromBackend } = useData()
 
     console.log('activePlanIndex', activePlanIndex)
     console.log('plans', allPlans)
@@ -404,17 +405,27 @@ export default function Home() {
             </Tabs>
 
             <Box sx={{ mt: 2 }}>
-                <PlanSelector plans={allPlans} newPlan={newPlan} activePlanIndex={activePlanIndex} setActivePlanIndex={setActivePlanIndex} />
+                <PlanSelector />
             </Box>
 
             <CustomTabPanel value={tabValue} index={0}>
 
                 <Box sx={{ display: 'flex', flexDir: 'row', justifyContent: 'space-between' }}>
-                    <Typography
-                        variant="h5"
-                        component="h5"
-                        sx={{ textAlign: 'left', mt: 0, mb: 3 }}
-                    >Collection Plans:</Typography>
+                    <Box sx={{ display: 'flex', justifyContent: "begin", alignItems: "center", width: 'full', mb: 3 }}>
+
+                        <Typography
+                            variant="h5"
+                            component="h5"
+                            sx={{ textAlign: 'left', mt: 0 }}
+                        >Collection Plans</Typography>
+
+                        <IconButton onClick={() => {
+                            fetchPlansFromBackend();
+                        }}>
+                            <RefreshIcon />
+                        </IconButton>
+
+                    </Box>
                     <Button variant="contained" sx={{ m: 1 }} onClick={() => {
                         handleExportPlan(allPlans[activePlanIndex])
                     }}>Download Plan</Button>
