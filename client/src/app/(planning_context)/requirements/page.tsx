@@ -13,9 +13,10 @@ import ViewTimelineIcon from '@mui/icons-material/ViewTimeline';
 import TableChartIcon from '@mui/icons-material/TableChart';
 import { CustomReqsToolbar } from "@/components/ExcelExport"
 import dynamic from 'next/dynamic';
+import EXCELReqUpload from "@/components/EXCELReqUpload"
 
 const ClientSideMapView = dynamic(() => import('../../../components/MapView'), {
-  ssr: false,
+    ssr: false,
 });
 
 const columns: GridColDef[] = [
@@ -210,13 +211,13 @@ function a11yProps(index: number) {
 }
 
 export default function Home() {
-    const { allRequirements, addCRsToPlan, plans, newPlan, activePlanIndex, setActivePlanIndex } = useContext(JAPContext)
+    const { allRequirements, addCRsToPlan, allPlans: plans, newPlan, activePlanIndex, setActivePlanIndex } = useContext(JAPContext)
     const [pageSize, setPageSize] = useState(10);
     const [selectedRows, setSelectedRows] = useState<string[]>([])
     const [amountOfAssetsAdded, setAmountOfAssetsAdded] = useState<number>(0)
     const [open, setOpen] = useState(false);
 
-    const rows = allRequirements.filter((cr) => !plans[activePlanIndex]?.requirements.find(req => req.ID === cr.ID))
+    const rows = allRequirements.filter((cr) => !plans[activePlanIndex]?.requirements?.find(req => req.ID === cr.ID))
 
     //console.log(allRequirements)
 
@@ -232,7 +233,7 @@ export default function Home() {
     const today = new Date();
 
     if (plans[activePlanIndex]) {
-        plans[activePlanIndex].requirements.forEach((req, i) => {
+        plans[activePlanIndex].requirements?.forEach((req, i) => {
             data_main.push(["CR" + req.ID, '', new Date(
                 today.getFullYear(),
                 today.getMonth(),
@@ -252,7 +253,7 @@ export default function Home() {
     const location_data = [] as [string, [number, number]][]
 
     if (plans[activePlanIndex]) {
-        plans[activePlanIndex].requirements.forEach((req, i) => {
+        plans[activePlanIndex].requirements?.forEach((req, i) => {
             location_data.push(['CR' + req.ID, [Number(req.Coordinates.split("N")[0]), Number(req.Coordinates.split(" ")[1].split("E")[0])]])
         })
     }
@@ -295,7 +296,10 @@ export default function Home() {
                     sx={{ textAlign: 'left', mt: 0, mb: 3 }}
                 >Collection Requirements:</Typography>
 
-                <Button variant='contained' sx={{ mb: 2 }} onClick={addToPlanHandler}>Add Selection to Plan</Button>
+                <Box sx={{ display: 'flex', justifyContent: "space-between", width: 'full' }}>
+                    <Button variant='contained' sx={{ mb: 2 }} onClick={addToPlanHandler}>Add Selection to Plan</Button>
+                    <EXCELReqUpload />
+                </Box>
 
                 <Box sx={{ height: 650, width: '100%' }}>
                     <DataGrid
@@ -303,9 +307,9 @@ export default function Home() {
                         getRowId={(row) => row.ID}
                         columns={columns}
                         onSelectionModelChange={(newSelectedRows) => {
-                            console.log(newSelectedRows)
+                            console.log("new selection:", newSelectedRows)
                             setSelectedRows(newSelectedRows.map((e) => e.toString()))
-                            console.log(selectedRows)
+                            console.log("selectedRows: ", selectedRows)
                             //setSelectedRows(newSelectedRows);
                         }}
                         selectionModel={selectedRows}

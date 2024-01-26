@@ -70,12 +70,9 @@ function Home() {
       Reporting_Instructions: reportingInstructions,
       ER_Remarks: remarks,
     }
-    const CR_ID = await uploadCRtoBackend(newCR)
-    const fullNewCR: Requirement = {
-      db_id: CR_ID,
-      ...newCR
-    }
-    addCRs([fullNewCR])
+    const CR = await uploadCRtoBackend([newCR])
+
+    addCRs(CR)
     setOpen(true);
   }
 

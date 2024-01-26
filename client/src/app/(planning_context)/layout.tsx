@@ -21,18 +21,9 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import { Avatar, Button, Modal, Stack, TextField } from '@mui/material';
 import AssignmentIcon from '@mui/icons-material/Assignment';
-import next from 'next';
-import Link from 'next/link';
-import Head from 'next/head';
-import { JCAPContext } from '../context'
+
 import { JAPContext } from '../context';
-import { CollectionExploitationPlanType } from '@/types/main/collectionExploitationPlanType';
-import { createCMPlan, generateRandomTasks, addTasksToPEDPlan, generateRandomGAOIs, generateRandomTasksWithGAOI } from '@/lib/helpers';
-import { GeographicAreaOfInterestType } from '@/types/main/geographicAreaOfInterestType';
-import { InformationRequirementType } from '@/types/main/informationRequirementType';
-import { generateDataFromORBAT } from '@/constants';
-import { usePlan } from '@/hooks/usePlan';
-import { useData } from '@/hooks/useData';
+
 import { useContext, useState } from 'react';
 
 
@@ -54,8 +45,7 @@ export default function RootLayout({
     children: React.ReactNode
 }) {
 
-    const { mainDrawerWidth, getPlan, addCRsToPlan, removeCRsFromPlan, addAssetsToPlan, removeAssetsFromPlan, addTasksToPlan, addFlightPlansToPlan, plans, newPlan, activePlanIndex, setActivePlanIndex } = useContext(JAPContext)
-    const { allAssets, allRequirements, addAssets, addCRs, removeAssets, removeCRs } = useData()
+    const { mainDrawerWidth, getPlan, addCRsToPlan, removeCRsFromPlan, addAssetsToPlan, removeAssetsFromPlan, addTasksToPlan, addFlightPlansToPlan, allPlans: plans, newPlan, activePlanIndex, setActivePlanIndex } = useContext(JAPContext)
     const [drawerWidth, setDrawerWidth] = React.useState<number>(240)
     const [open, setOpen] = useState(true);
 

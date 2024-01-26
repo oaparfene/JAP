@@ -92,7 +92,7 @@ function a11yProps(index: number) {
 }
 
 export default function Home() {
-    const { allAssets, addAssetsToPlan, plans, newPlan, activePlanIndex, setActivePlanIndex } = useContext(JAPContext)
+    const { allAssets, addAssetsToPlan, allPlans: plans, newPlan, activePlanIndex, setActivePlanIndex } = useContext(JAPContext)
     const [pageSize, setPageSize] = useState(10);
     const [selectedRows, setSelectedRows] = useState<any[]>([])
     const [amountOfAssetsAdded, setAmountOfAssetsAdded] = useState<number>(0)

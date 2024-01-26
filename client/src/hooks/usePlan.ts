@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useData } from "./useData";
+import { JAPContext } from "@/app/context";
 
 export interface Plan {
     db_id: string,
@@ -77,8 +78,7 @@ export interface Requirement {
 }
 
 export const usePlan = () => {
-    const [plans, setPlans] = useState<Plan[]>([])
-    const [activePlanIndex, setActivePlanIndex] = useState(0)
+    const { allPlans: plans, setAllPlans: setPlans, activePlanIndex, setActivePlanIndex } = useContext(JAPContext)
     const { savePlan } = useData()
 
     const getPlan = () => {

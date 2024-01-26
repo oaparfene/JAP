@@ -10,7 +10,7 @@ import { PlanSelector } from '@/components/PlanSelector';
 
 function Home() {
 
-  const { plans, activePlanIndex, setActivePlanIndex, newPlan } = useContext(JAPContext)
+  const { allPlans: plans, activePlanIndex, setActivePlanIndex, newPlan } = useContext(JAPContext)
 
 
   const data: any = [

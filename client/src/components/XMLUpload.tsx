@@ -64,14 +64,14 @@ function XMLUpload() {
             Required_Product: "ISREXREP",
             Recurrance: "",
           }
-          const temp_CR_ID = await uploadCRtoBackend(temp_CR_To_Add)
-          const CR_To_Add: Requirement = {
-            ...temp_CR_To_Add,
-            db_id: temp_CR_ID
-          }
-          setActiveCR(CR_To_Add)
+          const temp_CRs = await uploadCRtoBackend([temp_CR_To_Add])
+          // const CR_To_Add: Requirement = {
+          //   ...temp_CR_To_Add,
+          //   db_id: temp_CR_ID
+          // }
+          setActiveCR(temp_CRs[0])
           setOpenNewCR(true)
-          console.log(CR_To_Add)
+          console.log(temp_CRs[0])
         })
       }
       reader.readAsText(file)

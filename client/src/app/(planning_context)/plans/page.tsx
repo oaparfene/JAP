@@ -254,7 +254,7 @@ function a11yProps(index: number) {
 }
 
 export default function Home() {
-    const { addFlightPlansToPlan, addTasksToPlan, plans, newPlan, activePlanIndex, setActivePlanIndex, removeAssetsFromPlan, removeCRsFromPlan } = useContext(JAPContext)
+    const { addFlightPlansToPlan, addTasksToPlan, allPlans: plans, activePlanIndex, removeAssetsFromPlan, removeCRsFromPlan } = useContext(JAPContext)
     const { prepareAllocation, loading, allocation, flightPlans } = useMiniZinc()
     const [pageSize, setPageSize] = useState(10);
     const [selectedCRRows, setSelectedCRRows] = useState<string[]>([])

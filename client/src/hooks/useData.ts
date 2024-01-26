@@ -1,5 +1,5 @@
 import { EventAssets, EventRequirements } from "@/5gConstants";
-import { SettingsContext } from "@/app/context";
+import { JAPContext, SettingsContext } from "@/app/context";
 import { crs, generateDataFromORBAT } from "@/constants";
 import { useContext, useEffect, useState } from "react";
 import { Asset, FlightPlan, Plan, Requirement, Task } from "./usePlan";
@@ -78,69 +78,56 @@ export interface PreRequirement {
 
 export const useData = () => {
 
-    const [allPlans, setAllPlans] = useState<Plan[]>([]);
-    const [allRequirements, setAllRequirements] = useState<Requirement[]>([]);
-    const [allAssets, setAllAssets] = useState<Asset[]>([]);
+    
+    const { allAssets, allRequirements, setAllAssets, setAllRequirements, allPlans, setAllPlans } = useContext(JAPContext)
     const { BackendAPIURL } = useContext(SettingsContext)
     const pb = new PocketBase(BackendAPIURL);
-    //console.log(BackendAPIURL)
 
     useEffect(() => {
-        //setAllAssets(generateDataFromORBAT()!)
-        // fetch(`${BackendAPIURL}/collections/Assets/records`).then(res => res.json().then(data => {
-        //     setAllAssets(data.items.map((item: any, index: number) => {
-        //         return {
-        //             ID: index,
-        //             UniquePlatformID: item.UniquePlatformID,
-        //             Description: item.Description,
-        //             AvailableFrom: new Date(item.AvailableFrom),
-        //             Sensor: item.Sensor,
-        //             Unit: item.Unit,
-        //             Location: item.Location,
-        //             Capacity: item.Capacity
-        //         }
-        //     }))
-        //     console.log(data)
-        // })).catch(err => {
-        //     console.log(err)
-        //     setAllAssets(EventAssets)
-        // })
-
-        // fetch(`${BackendAPIURL}/collections/Requirements/records`).then(res => res.json().then(data => {
-        //     setAllRequirements(data.items.map((item: any, index: number) => {
-        //         return {
-        //             ID: index,
-        //             Operation: item.Operation,
-        //             Requester: item.Requester,
-        //             CR_Rank: item.CR_Rank,
-        //             Justification: item.Justification,
-        //             Location: item.Location,
-        //             Coordinates: item.Coordinates,
-        //             Target_ID: item.Target_ID,
-        //             Location_Category: item.Location_Category,
-        //             Coll_Start_Time: item.Coll_Start_Time,
-        //             Coll_End_Time: item.Coll_End_Time,
-        //             Sensor_Visibility: item.Sensor_Visibility,
-        //             LTIOV: (new Date(item.LTIOV)).toDateString(),
-        //             Required_Information: item.Required_Information,
-        //             Intel_Discipline: item.Intel_Discipline,
-        //             Required_Product: item.Required_Product,
-        //             ER_Report_Frequency: item.ER_Report_Frequency,
-        //             Recurrance: item.Recurrance,
-        //             RP_Remarks: item.RP_Remarks,
-        //             Reporting_Instructions: item.Reporting_Instructions,
-        //             ER_Remarks: item.ER_Remarks,
-        //         }
-        //     }))
-        //     console.log(data)
-        // })).catch(err => {
-        //     console.log(err)
-        //     setAllRequirements(EventRequirements)
-        // })
         fetchAssetsFromBackend()
         fetchCRsFromBackend()
         fetchPlansFromBackend()
+        // Subscribe to changes in any record in the collection
+        // pb.collection('Requirements').subscribe('*', function (e) {
+        //     console.log("from subscription");
+        //     console.log(e.action);
+        //     console.log(e.record);
+        //     const item = e.record;
+        //     if (e.action === 'create') {
+        //         // check if the record is already in the list
+        //         const index = allRequirements.findIndex((cr) => cr.db_id === e.record.id);
+
+        //         // if not, add it
+        //         if (index === -1) {
+        //             setAllRequirements([...allRequirements, {
+        //                 db_id: item.id,
+        //                 ID: allRequirements.length,
+        //                 Operation: item.Operation,
+        //                 Requester: item.Requester,
+        //                 CR_Rank: item.CR_Rank,
+        //                 Justification: item.Justification,
+        //                 Location: item.Location,
+        //                 Coordinates: item.Coordinates,
+        //                 Target_ID: item.Target_ID,
+        //                 Location_Category: item.Location_Category,
+        //                 Coll_Start_Time: item.Coll_Start_Time,
+        //                 Coll_End_Time: item.Coll_End_Time,
+        //                 Sensor_Visibility: item.Sensor_Visibility,
+        //                 LTIOV: item.LTIOV,
+        //                 Required_Information: item.Required_Information,
+        //                 Intel_Discipline: item.Intel_Discipline,
+        //                 Required_Product: item.Required_Product,
+        //                 ER_Report_Frequency: item.ER_Report_Frequency,
+        //                 Recurrance: item.Recurrance,
+        //                 RP_Remarks: item.RP_Remarks,
+        //                 Reporting_Instructions: item.Reporting_Instructions,
+        //                 ER_Remarks: item.ER_Remarks,
+        //             }])
+        //         }
+        //     }
+        // });
     }, [])
+
 
     const fetchPlansFromBackend = async () => {
         fetch(`${BackendAPIURL}/api/collections/Plans/records?expand=assets,requirements,allocation,flightPlans`).then(res => res.json().then(data => {
@@ -148,19 +135,21 @@ export const useData = () => {
                 return {
                     db_id: item.id,
                     name: item.name,
-                    assets: item.expand.assets.map((asset: any, _index: number) => {
+                    assets: item.expand?.assets.map((asset: any, _index: number) => {
                         return {
                             ID: _index,
                             AvailableFrom: new Date(asset.AvailableFrom),
                             ...asset
-                        }}),
-                    requirements: item.expand.requirements.map((cr: any, _index: number) => {
+                        }
+                    }),
+                    requirements: item.expand?.requirements.map((cr: any, _index: number) => {
                         return {
                             ID: _index,
                             ...cr
-                        }}),
-                    allocation: item.expand.allocation,
-                    flightPlans: item.expand.flightPlans
+                        }
+                    }),
+                    allocation: item.expand?.allocation,
+                    flightPlans: item.expand?.flightPlans
                 }
             }))
             console.log(data)
@@ -207,8 +196,11 @@ export const useData = () => {
     }
 
     const fetchCRsFromBackend = async () => {
-        fetch(`${BackendAPIURL}/api/collections/Requirements/records`).then(res => res.json().then(data => {
-            setAllRequirements(data.items.map((item: any, index: number) => {
+        console.log("fetching CRs from backend")
+        try {
+            const res = await pb.collection('Requirements').getFullList()
+            console.log("through sdk: ", res)
+            setAllRequirements(res.map((item: any, index: number) => {
                 return {
                     db_id: item.id,
                     ID: index,
@@ -234,65 +226,110 @@ export const useData = () => {
                     ER_Remarks: item.ER_Remarks,
                 }
             }))
-            console.log(data)
-        })).catch(err => {
+        } catch (err) {
             console.log(err)
-            setAllRequirements(EventRequirements.map((item: any, index: number) => {
-                return {
-                    db_id: "",
-                    ID: index,
-                    Operation: item.Operation,
-                    Requester: item.Requester,
-                    CR_Rank: item.CR_Rank,
-                    Justification: item.Justification,
-                    Location: item.Location,
-                    Coordinates: item.Coordinates,
-                    Target_ID: item.Target_ID,
-                    Location_Category: item.Location_Category,
-                    Coll_Start_Time: item.Coll_Start_Time,
-                    Coll_End_Time: item.Coll_End_Time,
-                    Sensor_Visibility: item.Sensor_Visibility,
-                    LTIOV: item.LTIOV,
-                    Required_Information: item.Required_Information,
-                    Intel_Discipline: item.Intel_Discipline,
-                    Required_Product: item.Required_Product,
-                    ER_Report_Frequency: item.ER_Report_Frequency,
-                    Recurrance: item.Recurrance,
-                    RP_Remarks: item.RP_Remarks,
-                    Reporting_Instructions: item.Reporting_Instructions,
-                    ER_Remarks: item.ER_Remarks,
-                }
-            }
-            ))
-        })
+        }
+        // fetch(`${BackendAPIURL}/api/collections/Requirements/records`).then(res => res.json().then(data => {
+        //     setAllRequirements(data.items.map((item: any, index: number) => {
+        //         return {
+        //             db_id: item.id,
+        //             ID: index,
+        //             Operation: item.Operation,
+        //             Requester: item.Requester,
+        //             CR_Rank: item.CR_Rank,
+        //             Justification: item.Justification,
+        //             Location: item.Location,
+        //             Coordinates: item.Coordinates,
+        //             Target_ID: item.Target_ID,
+        //             Location_Category: item.Location_Category,
+        //             Coll_Start_Time: item.Coll_Start_Time,
+        //             Coll_End_Time: item.Coll_End_Time,
+        //             Sensor_Visibility: item.Sensor_Visibility,
+        //             LTIOV: item.LTIOV,
+        //             Required_Information: item.Required_Information,
+        //             Intel_Discipline: item.Intel_Discipline,
+        //             Required_Product: item.Required_Product,
+        //             ER_Report_Frequency: item.ER_Report_Frequency,
+        //             Recurrance: item.Recurrance,
+        //             RP_Remarks: item.RP_Remarks,
+        //             Reporting_Instructions: item.Reporting_Instructions,
+        //             ER_Remarks: item.ER_Remarks,
+        //         }
+        //     }))
+        //     console.log(data)
+        // })).catch(err => {
+        //     console.log(err)
+        //     setAllRequirements(EventRequirements.map((item: any, index: number) => {
+        //         return {
+        //             db_id: "",
+        //             ID: index,
+        //             Operation: item.Operation,
+        //             Requester: item.Requester,
+        //             CR_Rank: item.CR_Rank,
+        //             Justification: item.Justification,
+        //             Location: item.Location,
+        //             Coordinates: item.Coordinates,
+        //             Target_ID: item.Target_ID,
+        //             Location_Category: item.Location_Category,
+        //             Coll_Start_Time: item.Coll_Start_Time,
+        //             Coll_End_Time: item.Coll_End_Time,
+        //             Sensor_Visibility: item.Sensor_Visibility,
+        //             LTIOV: item.LTIOV,
+        //             Required_Information: item.Required_Information,
+        //             Intel_Discipline: item.Intel_Discipline,
+        //             Required_Product: item.Required_Product,
+        //             ER_Report_Frequency: item.ER_Report_Frequency,
+        //             Recurrance: item.Recurrance,
+        //             RP_Remarks: item.RP_Remarks,
+        //             Reporting_Instructions: item.Reporting_Instructions,
+        //             ER_Remarks: item.ER_Remarks,
+        //         }
+        //     }
+        //     ))
+        // })
     }
 
-    const uploadCRtoBackend = async (cr: PreRequirement | Requirement) => {
-        const res = await pb.collection('Requirements').create({
-            Operation: cr.Operation,
-            Requester: cr.Requester,
-            CR_Rank: cr.CR_Rank,
-            Justification: cr.Justification,
-            Location: cr.Location,
-            Coordinates: cr.Coordinates,
-            Target_ID: cr.Target_ID,
-            Location_Category: cr.Location_Category,
-            Coll_Start_Time: cr.Coll_Start_Time,
-            Coll_End_Time: cr.Coll_End_Time,
-            Sensor_Visibility: cr.Sensor_Visibility,
-            LTIOV: cr.LTIOV,
-            Required_Information: cr.Required_Information,
-            Intel_Discipline: cr.Intel_Discipline,
-            Required_Product: cr.Required_Product,
-            ER_Report_Frequency: cr.ER_Report_Frequency,
-            Recurrance: cr.Recurrance,
-            RP_Remarks: cr.RP_Remarks,
-            Reporting_Instructions: cr.Reporting_Instructions,
-            ER_Remarks: cr.ER_Remarks,
-        });
-        console.log(res)
-        await fetchCRsFromBackend()
-        return res.id
+    const uploadCRtoBackend = async (crs: PreRequirement[] | Requirement[]) => {
+
+        const newcrs: Requirement[] = []
+
+        crs.forEach(async (cr) => {
+            console.log(cr.Justification)
+            const res = await pb.collection('Requirements').create({
+                Operation: cr.Operation,
+                Requester: cr.Requester,
+                CR_Rank: cr.CR_Rank,
+                Justification: cr.Justification,
+                Location: cr.Location,
+                Coordinates: cr.Coordinates,
+                Target_ID: cr.Target_ID,
+                Location_Category: cr.Location_Category,
+                Coll_Start_Time: cr.Coll_Start_Time,
+                Coll_End_Time: cr.Coll_End_Time,
+                Sensor_Visibility: cr.Sensor_Visibility,
+                LTIOV: cr.LTIOV,
+                Status: cr.Status,
+                Required_Information: cr.Required_Information,
+                Intel_Discipline: cr.Intel_Discipline,
+                Required_Product: cr.Required_Product,
+                ER_Report_Frequency: cr.ER_Report_Frequency,
+                Recurrance: cr.Recurrance,
+                RP_Remarks: cr.RP_Remarks,
+                Reporting_Instructions: cr.Reporting_Instructions,
+                ER_Remarks: cr.ER_Remarks,
+            }, {
+                requestKey: null
+            });
+            const newCR = {
+                db_id: res.id,
+                ...cr
+            } as Requirement
+            newcrs.push(newCR)
+            console.log(res)
+        })
+        console.log("inb4 refresh CRs from Backend")
+        //await fetchCRsFromBackend()
+        return newcrs
     }
 
     const uploadAssetToBackend = async (asset: PreAsset | Asset) => {
@@ -363,9 +400,6 @@ export const useData = () => {
     }
 
     return {
-        allRequirements,
-        allAssets,
-        allPlans,
         addAssets,
         removeAssets,
         addCRs,

@@ -9,7 +9,7 @@ import { PlanSelector } from "@/components/PlanSelector";
 
 function Home() {
 
-    const { plans, activePlanIndex, setActivePlanIndex, newPlan } = useContext(JAPContext)
+    const { allPlans: plans, activePlanIndex, setActivePlanIndex, newPlan } = useContext(JAPContext)
 
     const colors = ["yellow", "green", "blue", "orange", "red"]
 

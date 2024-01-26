@@ -25,12 +25,7 @@ import Link from 'next/link';
 import Head from 'next/head';
 import { JCAPContext, SettingsContext } from './context'
 import { JAPContext } from './context';
-import { CollectionExploitationPlanType } from '@/types/main/collectionExploitationPlanType';
-import { createCMPlan, generateRandomTasks, addTasksToPEDPlan, generateRandomGAOIs, generateRandomTasksWithGAOI } from '@/lib/helpers';
-import { GeographicAreaOfInterestType } from '@/types/main/geographicAreaOfInterestType';
-import { InformationRequirementType } from '@/types/main/informationRequirementType';
-import { generateDataFromORBAT } from '@/constants';
-import { usePlan } from '@/hooks/usePlan';
+import { Asset, Plan, Requirement, usePlan } from '@/hooks/usePlan';
 import { useData } from '@/hooks/useData';
 import SettingsIcon from '@mui/icons-material/Settings';
 import css from 'styled-jsx/css'
@@ -43,18 +38,22 @@ export default function RootLayout({
 
   const router = useRouter()
 
-  const { getPlan, addCRsToPlan, removeCRsFromPlan, addAssetsToPlan, removeAssetsFromPlan, addTasksToPlan, addFlightPlansToPlan, plans, newPlan, activePlanIndex, setActivePlanIndex, setPlans } = usePlan()
-  const { allAssets, allRequirements, addAssets, addCRs, removeAssets, removeCRs, allPlans } = useData()
+  const { getPlan, addCRsToPlan, removeCRsFromPlan, addAssetsToPlan, removeAssetsFromPlan, addTasksToPlan, addFlightPlansToPlan, newPlan } = usePlan()
+  const { addAssets, addCRs, removeAssets, removeCRs } = useData()
   const [drawerWidth, setDrawerWidth] = React.useState<number>(240)
   const [open, setOpen] = React.useState(true);
 
+  const [activePlanIndex, setActivePlanIndex] = React.useState(0)
+  const [allPlans, setAllPlans] = React.useState<Plan[]>([]);
+  const [allRequirements, setAllRequirements] = React.useState<Requirement[]>([]);
+  const [allAssets, setAllAssets] = React.useState<Asset[]>([]);
   const [MZNSolverEngine, setMZNSolverEngine] = React.useState<string>("Gecode");
   const [BackendAPIURL, setBackendAPIURL] = React.useState<string>("http://localhost:8090");
   const [MZNAPIURL, setMZNAPIURL] = React.useState<string>("http://localhost:5000");
 
-  React.useEffect(() => {
-    setPlans(allPlans)
-  }, [allPlans])
+  // React.useEffect(() => {
+  //   setPlans(allPlans)
+  // }, [allPlans])
   
 
   const handleToggleDrawer = () => {
@@ -198,7 +197,8 @@ export default function RootLayout({
           <JAPContext.Provider
             value={{
               getPlan,
-              plans,
+              allPlans,
+              setAllPlans,
               newPlan,
               activePlanIndex,
               setActivePlanIndex,
@@ -209,7 +209,9 @@ export default function RootLayout({
               addTasksToPlan,
               addFlightPlansToPlan,
               allAssets,
+              setAllAssets,
               allRequirements,
+              setAllRequirements,
               addAssets,
               addCRs,
               removeAssets,
