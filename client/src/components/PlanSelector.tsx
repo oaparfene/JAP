@@ -1,9 +1,10 @@
 'use client'
 
-import { Modal, Box, Stack, Typography, TextField, Button, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from "@mui/material"
+import { Modal, Box, Stack, Typography, TextField, Button, List, ListItem, ListItemButton, ListItemIcon, ListItemText, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, IconButton } from "@mui/material"
 import { useState } from "react"
 import { Plan, usePlan } from "../hooks/usePlan"
 import AssignmentIcon from '@mui/icons-material/Assignment';
+import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
 
 const style = {
     position: 'absolute' as 'absolute',
@@ -25,8 +26,6 @@ interface PlanSelectorProps {
 }
 
 export const PlanSelector = (props: PlanSelectorProps) => {
-
-    const [openPlan, setOpenPlan] = useState(false);
     const [openNewPlan, setOpenNewPlan] = useState(false);
     const [newPlanName, setNewPlanName] = useState('');
 
@@ -34,17 +33,44 @@ export const PlanSelector = (props: PlanSelectorProps) => {
         props.newPlan(name)
     }
 
+    const handleChange = (event: SelectChangeEvent) => {
+        const selectedPlanName = event.target.value as string;
+        const selectedPlanIndex = props.plans.findIndex(plan => plan.name === selectedPlanName);
+        props.setActivePlanIndex(selectedPlanIndex);
+    };
+
     return (
-        <>
-            <Box sx={{ p: 2, display: 'flex', flexDir: 'row', justifyContent: 'space-between', bgcolor: 'lightgray', borderRadius: 2, alignItems: 'center', mb: 2 }}>
-                <Typography>
-                    Active Plan: {props.plans[props.activePlanIndex]?.name ? props.plans[props.activePlanIndex].name : 'No Plan selected'}
-                </Typography>
-                <Box sx={{ display: 'flex', flexDir: 'row', gap: 2 }}>
-                    <Button variant='contained' sx={{ mb: 0 }} onClick={() => setOpenPlan(true)}>Open Plan</Button>
-                    {/* <Button variant='contained' sx={{ mb: 0 }} onClick={() => setOpenNewPlan(true)}>New Plan</Button> */}
-                </Box>
-            </Box>
+        <Box sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'start',
+            alignItems: 'center',
+            gap: 4,
+        }}>
+
+            <FormControl sx={{
+                minWidth: 120,
+            }}>
+                <InputLabel id="demo-simple-select-label">Plan</InputLabel>
+                <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    value={props.plans[props.activePlanIndex]?.name || ''}
+                    label="Plan"
+                    onChange={handleChange}
+                >
+                    {props.plans.map((plan, index) => (
+                        <MenuItem key={index} value={plan?.name}>{plan?.name}</MenuItem>
+                    ))}
+                </Select>
+            </FormControl>
+
+            <IconButton onClick={() => {
+                setOpenNewPlan(true)
+            }}>
+                <CreateNewFolderIcon />
+            </IconButton>
+
             <Modal
                 open={openNewPlan}
                 onClose={() => setOpenNewPlan(false)}
@@ -73,37 +99,6 @@ export const PlanSelector = (props: PlanSelectorProps) => {
 
                 </Box>
             </Modal>
-
-            <Modal
-                open={openPlan}
-                onClose={() => setOpenPlan(false)}
-                aria-labelledby="modal-modal-title"
-                aria-describedby="modal-modal-description"
-            >
-                <Box sx={style}>
-                    <Typography id="modal-modal-title" variant="h6" component="h2">
-                        Select Plan:
-                    </Typography>
-
-                    <List>
-                        {props.plans.map((plan, index) => (
-                            <ListItem key={plan.name} disablePadding>
-                                <ListItemButton onClick={() => { props.setActivePlanIndex(index); setOpenPlan(false) }}>
-                                    <ListItemIcon>
-                                        <AssignmentIcon />
-                                    </ListItemIcon>
-                                    <ListItemText primary={plan.name} />
-                                </ListItemButton>
-                            </ListItem>))
-                        }
-                    </List>
-                    <Button variant='contained' sx={{ mb: 0 }} onClick={() => {
-                        setOpenPlan(false)
-                        setOpenNewPlan(true)
-                    }}>New Plan</Button>
-
-                </Box>
-            </Modal>
-        </>
+        </Box>
     )
 }

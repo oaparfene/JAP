@@ -17,7 +17,7 @@ import { CustomAssetsToolbar } from "@/components/ExcelExport"
 import dynamic from 'next/dynamic';
 
 const ClientSideMapView = dynamic(() => import('../../../components/MapView'), {
-  ssr: false,
+    ssr: false,
 });
 
 const columns: GridColDef[] = [
@@ -92,7 +92,7 @@ function a11yProps(index: number) {
 }
 
 export default function Home() {
-    const { allAssets, addAssetsToPlan, allPlans: plans, newPlan, activePlanIndex, setActivePlanIndex } = useContext(JAPContext)
+    const { allAssets, addAssetsToPlan, allPlans, newPlan, activePlanIndex, setActivePlanIndex } = useContext(JAPContext)
     const [pageSize, setPageSize] = useState(10);
     const [selectedRows, setSelectedRows] = useState<any[]>([])
     const [amountOfAssetsAdded, setAmountOfAssetsAdded] = useState<number>(0)
@@ -101,7 +101,7 @@ export default function Home() {
     console.log('allAssets', allAssets)
 
     const allRows = allAssets
-    const rows = allRows.filter((asset) => !plans[activePlanIndex]?.assets.find(el => el.ID === asset.ID))
+    const rows = allRows.filter((asset) => !allPlans[activePlanIndex]?.assets?.find(el => el.ID === asset.ID))
 
     const data_main: any = [
         [
@@ -112,9 +112,9 @@ export default function Home() {
         ]
     ];
 
-    if (plans[activePlanIndex]) {
-        plans[activePlanIndex].assets.forEach((asset, i) => {
-            data_main.push([asset.UniquePlatformID, '', 
+    if (allPlans[activePlanIndex]) {
+        allPlans[activePlanIndex].assets?.forEach((asset, i) => {
+            data_main.push([asset.UniquePlatformID, '',
             new Date(asset.AvailableFrom),
             new Date(
             )])
@@ -123,20 +123,20 @@ export default function Home() {
 
     const location_data = [] as [string, [number, number]][]
 
-    if (plans[activePlanIndex]) {
-        plans[activePlanIndex].assets.forEach((asset, i) => {
+    if (allPlans[activePlanIndex]) {
+        allPlans[activePlanIndex].assets?.forEach((asset, i) => {
             location_data.push([asset.UniquePlatformID, [Number(asset.Location.split("N")[0]), Number(asset.Location.split(" ")[1].split("E")[0])]])
         })
     }
 
     const addToPlanHandler = () => {
-        if (!plans[activePlanIndex]) return
+        if (!allPlans[activePlanIndex]) return
         console.log('selectedRows', selectedRows)
         if (selectedRows.length === 0) return
         const assetsToAdd = selectedRows.map((id) => rows.find(asset => asset.ID === id)) as Asset[]
         console.log('assetsToAdd', assetsToAdd)
         addAssetsToPlan(assetsToAdd)
-        console.log('plans', plans)
+        console.log('plans', allPlans)
         setAmountOfAssetsAdded(selectedRows.length)
         setOpen(true);
         setSelectedRows([])
@@ -164,6 +164,10 @@ export default function Home() {
                 <Tab icon={<ViewTimelineIcon />} label="" {...a11yProps(1)} />
                 <Tab icon={<MapIcon />} label="" {...a11yProps(2)} />
             </Tabs>
+
+            <Box sx={{ mt: 2 }}>
+                <PlanSelector plans={allPlans} newPlan={newPlan} activePlanIndex={activePlanIndex} setActivePlanIndex={setActivePlanIndex} />
+            </Box>
 
             <CustomTabPanel value={tabValue} index={0}>
                 <Typography
@@ -204,7 +208,7 @@ export default function Home() {
 
             <Snackbar open={open} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
                 <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
-                    Added {amountOfAssetsAdded} Assets to Plan {plans[activePlanIndex]?.name}
+                    Added {amountOfAssetsAdded} Assets to Plan {allPlans[activePlanIndex]?.name}
                 </Alert>
             </Snackbar>
         </Box>

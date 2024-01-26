@@ -254,7 +254,7 @@ function a11yProps(index: number) {
 }
 
 export default function Home() {
-    const { addFlightPlansToPlan, addTasksToPlan, allPlans: plans, activePlanIndex, removeAssetsFromPlan, removeCRsFromPlan } = useContext(JAPContext)
+    const { addFlightPlansToPlan, addTasksToPlan, allPlans, activePlanIndex, removeAssetsFromPlan, removeCRsFromPlan, setActivePlanIndex, newPlan } = useContext(JAPContext)
     const { prepareAllocation, loading, allocation, flightPlans } = useMiniZinc()
     const [pageSize, setPageSize] = useState(10);
     const [selectedCRRows, setSelectedCRRows] = useState<string[]>([])
@@ -267,10 +267,10 @@ export default function Home() {
     const { savePlan } = useData()
 
     console.log('activePlanIndex', activePlanIndex)
-    console.log('plans', plans)
+    console.log('plans', allPlans)
 
-    const planReqs = plans[activePlanIndex] ? plans[activePlanIndex].requirements : []
-    const planAssets = plans[activePlanIndex] ? plans[activePlanIndex].assets : []
+    const planReqs = allPlans[activePlanIndex] ? allPlans[activePlanIndex].requirements : []
+    const planAssets = allPlans[activePlanIndex] ? allPlans[activePlanIndex].assets : []
 
     console.log('planReqs', planReqs)
     console.log('planAssets', planAssets)
@@ -293,12 +293,12 @@ export default function Home() {
         ]
     ];
 
-    if (plans[activePlanIndex]) {
-        plans[activePlanIndex].allocation.forEach((task, i) => {
+    if (allPlans[activePlanIndex]) {
+        allPlans[activePlanIndex].allocation?.forEach((task, i) => {
             data_main.push(["CR" + task.Requirement_to_Collect, task.Asset_Used, new Date(task.Start), new Date(task.End)])
         })
 
-        plans[activePlanIndex].allocation.forEach((task, i) => {
+        allPlans[activePlanIndex].allocation?.forEach((task, i) => {
             data_inv.push([task.Asset_Used, "CR" + task.Requirement_to_Collect, new Date(task.Start), new Date(task.End)])
         })
     }
@@ -309,12 +309,12 @@ export default function Home() {
     const location_data = [] as [string, [number, number]][]
     const flight_data = [] as [string, [number, number][]][]
 
-    if (plans[activePlanIndex]) {
-        plans[activePlanIndex].allocation.forEach((task, i) => {
-            location_data.push(['CR' + plans[activePlanIndex].requirements.find(e => e.db_id === task.Requirement_to_Collect)?.ID /*+ " " + plans[activePlanIndex].requirements.find(e => e.db_id === task.Requirement_to_Collect)?.Intel_Discipline + " " + task.Asset_Used + " at " + task.Start.getHours() + ":" + (task.Start.getMinutes() === 0 ? '00' : task.Start.getMinutes().toString()) + " - " + task.End.getHours() + ":" + (task.End.getMinutes() === 0 ? '00' : task.End.getMinutes().toString())*/, [Number(task.Coordinates.split("N")[0]), Number(task.Coordinates.split(" ")[1].split("E")[0])]])
+    if (allPlans[activePlanIndex]) {
+        allPlans[activePlanIndex].allocation?.forEach((task, i) => {
+            location_data.push(['CR' + allPlans[activePlanIndex].requirements?.find(e => e.db_id === task.Requirement_to_Collect)?.ID /*+ " " + plans[activePlanIndex].requirements.find(e => e.db_id === task.Requirement_to_Collect)?.Intel_Discipline + " " + task.Asset_Used + " at " + task.Start.getHours() + ":" + (task.Start.getMinutes() === 0 ? '00' : task.Start.getMinutes().toString()) + " - " + task.End.getHours() + ":" + (task.End.getMinutes() === 0 ? '00' : task.End.getMinutes().toString())*/, [Number(task.Coordinates.split("N")[0]), Number(task.Coordinates.split(" ")[1].split("E")[0])]])
         })
 
-        plans[activePlanIndex].flightPlans.forEach((flight, i) => {
+        allPlans[activePlanIndex].flightPlans?.forEach((flight, i) => {
             if (flight.Flight_Path.length > 0) {
                 flight_data.push([flight.Asset_Used, flight.Flight_Path.map((e) => {
                     return [Number(e.split("N")[0]), Number(e.split(" ")[1].split("E")[0])]
@@ -328,7 +328,7 @@ export default function Home() {
     console.log('flight_data', flight_data)
 
     const removeReqsFromPlanHandler = () => {
-        if (!plans[activePlanIndex]) return
+        if (!allPlans[activePlanIndex]) return
         if (selectedCRRows.length === 0) return
         const CRsToRemove = selectedCRRows.map((id) => planReqs.find(asset => asset.ID.toString() === id)) as Requirement[]
         console.log('CRsToRemove', CRsToRemove)
@@ -339,7 +339,7 @@ export default function Home() {
     }
 
     const removeAssetsFromPlanHandler = () => {
-        if (!plans[activePlanIndex]) return
+        if (!allPlans[activePlanIndex]) return
         if (selectedAssetRows.length === 0) return
         const assetsToRemove = selectedAssetRows.map((id) => planAssets.find(asset => asset.ID.toString() === id)) as Asset[]
         console.log('assetsToRemove', assetsToRemove)
@@ -361,8 +361,8 @@ export default function Home() {
 
     const handleRequestAllocation = () => {
         console.log('handleRequestAllocation')
-        if (!plans[activePlanIndex]) return
-        prepareAllocation(plans[activePlanIndex]).then(() => {
+        if (!allPlans[activePlanIndex]) return
+        prepareAllocation(allPlans[activePlanIndex]).then(() => {
             setOpenAllocation(true)
         }
         )
@@ -370,8 +370,8 @@ export default function Home() {
 
     const handleSavePlan = () => {
         console.log('handleSavePlan')
-        if (!plans[activePlanIndex]) return
-        savePlan(plans[activePlanIndex])
+        if (!allPlans[activePlanIndex]) return
+        savePlan(allPlans[activePlanIndex])
     }
 
     useEffect(() => {
@@ -403,6 +403,10 @@ export default function Home() {
                 <Tab icon={<MapIcon />} label="" {...a11yProps(2)} />
             </Tabs>
 
+            <Box sx={{ mt: 2 }}>
+                <PlanSelector plans={allPlans} newPlan={newPlan} activePlanIndex={activePlanIndex} setActivePlanIndex={setActivePlanIndex} />
+            </Box>
+
             <CustomTabPanel value={tabValue} index={0}>
 
                 <Box sx={{ display: 'flex', flexDir: 'row', justifyContent: 'space-between' }}>
@@ -412,7 +416,7 @@ export default function Home() {
                         sx={{ textAlign: 'left', mt: 0, mb: 3 }}
                     >Collection Plans:</Typography>
                     <Button variant="contained" sx={{ m: 1 }} onClick={() => {
-                        handleExportPlan(plans[activePlanIndex])
+                        handleExportPlan(allPlans[activePlanIndex])
                     }}>Download Plan</Button>
                 </Box>
 
@@ -483,13 +487,13 @@ export default function Home() {
                     <Button variant='outlined' sx={{ mr: 2 }} onClick={handleRequestAllocation}>Generate Plan{loading && <CircularProgress sx={{ p: 1 }} />}</Button>
                     <Button variant='outlined' sx={{ mr: 2 }} onClick={() => {
                         handleSavePlan()
-                     }}>Save Draft Plan</Button>
+                    }}>Save Draft Plan</Button>
                     <Button variant='contained' sx={{ mr: 2 }} onClick={() => { }}>Publish Plan</Button>
                 </Stack>
             </CustomTabPanel>
 
             <CustomTabPanel value={tabValue} index={1}>
-                <SynchMatrixView title="Allocation Gantt View" data={[data_main]} crsCollected={plans[activePlanIndex]?.allocation.length} totalCRs={plans[activePlanIndex]?.requirements.length}></SynchMatrixView>
+                <SynchMatrixView title="Allocation Gantt View" data={[data_main]} crsCollected={allPlans[activePlanIndex]?.allocation.length} totalCRs={allPlans[activePlanIndex]?.requirements?.length}></SynchMatrixView>
                 <SynchMatrixView title="" data={[data_inv]} colorByRowLabel></SynchMatrixView>
             </CustomTabPanel>
 
@@ -499,7 +503,7 @@ export default function Home() {
                         toPng(document.getElementById('map')!)
                             .then(dataUrl => {
                                 console.log(dataUrl)
-                                handleExportPlan(plans[activePlanIndex], dataUrl)
+                                handleExportPlan(allPlans[activePlanIndex], dataUrl)
                             })
                     }}>Download Plan</Button>
                 </Box>
@@ -508,17 +512,17 @@ export default function Home() {
 
             <Snackbar open={openCR} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
                 <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
-                    Removed {amountOfCRsRemoved} Requirements from Plan {plans[activePlanIndex]?.name}
+                    Removed {amountOfCRsRemoved} Requirements from Plan {allPlans[activePlanIndex]?.name}
                 </Alert>
             </Snackbar>
             <Snackbar open={openAsset} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
                 <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
-                    Removed {amountOfAssetsRemoved} Assets from Plan {plans[activePlanIndex]?.name}
+                    Removed {amountOfAssetsRemoved} Assets from Plan {allPlans[activePlanIndex]?.name}
                 </Alert>
             </Snackbar>
             <Snackbar open={openAllocation} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
                 <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
-                    Received Allocation for Plan {plans[activePlanIndex]?.name}
+                    Received Allocation for Plan {allPlans[activePlanIndex]?.name}
                 </Alert>
             </Snackbar>
         </Box>

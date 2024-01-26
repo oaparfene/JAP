@@ -88,6 +88,7 @@ export const usePlan = () => {
     }
 
     const newPlan = async (name: string) => {
+        console.log("all current plan: ", plans)
         const plan = {
             name: name,
             assets: [],
@@ -96,6 +97,7 @@ export const usePlan = () => {
             flightPlans: []
         }
         const planId = await savePlan(plan)
+        console.log('plan saved with planId: ', planId)
         const savedPlan = {
             db_id: planId,
             name: name,
@@ -105,11 +107,14 @@ export const usePlan = () => {
             flightPlans: []
         }
         var tempPlans = plans
+        console.log('tempPlans: ', tempPlans)
         tempPlans.push(savedPlan)
+        console.log('pushed: ', savedPlan)
         setPlans(tempPlans)
         setActivePlanIndex(tempPlans.length - 1)
-        console.log('plans: ', plans)
-        console.log('activePlanIndex: ', activePlanIndex)
+        console.log('set active plan index to: ', tempPlans.length - 1)
+        //console.log('plans: ', plans)
+        //console.log('activePlanIndex: ', activePlanIndex)
     }
 
     const addCRsToPlan = (CRsToAdd: Requirement[]) => {

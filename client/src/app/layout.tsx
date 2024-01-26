@@ -54,7 +54,7 @@ export default function RootLayout({
   // React.useEffect(() => {
   //   setPlans(allPlans)
   // }, [allPlans])
-  
+
 
   const handleToggleDrawer = () => {
     setDrawerWidth(drawerWidth === 240 ? 40 : 240)
@@ -70,12 +70,31 @@ export default function RootLayout({
       </Box>
       {open && <>
         {/* <Toolbar /> */}
-        <Box sx={{ p: 2, width: "100%" }}>
+        <Box sx={{
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'start',
+        }}>
 
-          <Avatar sx={{ mb: 2 }}>JD</Avatar>
+          <Box sx={{ p: 2, width: "100%" }}>
 
-          <Typography variant='h5'>John Doe</Typography>
-          <Typography>john.doe@email.com</Typography>
+            <Avatar sx={{ mb: 2 }}>JD</Avatar>
+
+            <Typography variant='h5'>John Doe</Typography>
+            <Typography>john.doe@email.com</Typography>
+          </Box>
+
+          <IconButton
+            color="inherit"
+            edge="start"
+            onClick={() => {
+              router.push("/settings")
+            }
+            }
+          >
+            <SettingsIcon />
+          </IconButton>
         </Box>
 
         <Divider />
@@ -223,7 +242,7 @@ export default function RootLayout({
 
             <Box sx={{ display: 'flex' }}>
               <CssBaseline />
-              <AppBar
+              {/* <AppBar
                 position="fixed"
                 sx={{
                   width: { sm: `calc(100% - ${drawerWidth}px)` },
@@ -256,7 +275,7 @@ export default function RootLayout({
                 >
                   <SettingsIcon />
                 </IconButton>
-              </AppBar>
+              </AppBar> */}
               <Box
                 component="nav"
                 sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}

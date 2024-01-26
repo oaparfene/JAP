@@ -152,7 +152,7 @@ export const useData = () => {
                     flightPlans: item.expand?.flightPlans
                 }
             }))
-            console.log(data)
+            console.log("fetching Plans:", data)
         }
         )).catch(err => {
             console.log(err)
@@ -175,7 +175,7 @@ export const useData = () => {
                     Capacity: item.Capacity
                 }
             }))
-            console.log(data)
+            //console.log(data)
         })).catch(err => {
             console.log(err)
             setAllAssets(EventAssets.map((item: any, index: number) => {
@@ -196,10 +196,10 @@ export const useData = () => {
     }
 
     const fetchCRsFromBackend = async () => {
-        console.log("fetching CRs from backend")
+        //console.log("fetching CRs from backend")
         try {
             const res = await pb.collection('Requirements').getFullList()
-            console.log("through sdk: ", res)
+            //console.log("through sdk: ", res)
             setAllRequirements(res.map((item: any, index: number) => {
                 return {
                     db_id: item.id,

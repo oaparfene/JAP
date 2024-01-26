@@ -16,8 +16,6 @@ interface SynchMatrixViewProps {
 
 function SynchMatrixView({ title, data, crsCollected, totalCRs, colorByRowLabel }: SynchMatrixViewProps) {
 
-  console.log("from Synchmatrix: ", data, crsCollected, totalCRs)
-
   return (
     <Box sx={{ p: 0 }}>
 

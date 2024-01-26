@@ -213,14 +213,14 @@ function a11yProps(index: number) {
 }
 
 export default function Home() {
-    const { allRequirements, addCRsToPlan, allPlans: plans, newPlan, activePlanIndex, setActivePlanIndex } = useContext(JAPContext)
+    const { allRequirements, addCRsToPlan, allPlans, newPlan, activePlanIndex, setActivePlanIndex } = useContext(JAPContext)
     const [pageSize, setPageSize] = useState(10);
     const [selectedRows, setSelectedRows] = useState<string[]>([])
     const [amountOfAssetsAdded, setAmountOfAssetsAdded] = useState<number>(0)
     const [open, setOpen] = useState(false);
     const { fetchCRsFromBackend } = useData();
 
-    const rows = allRequirements.filter((cr) => !plans[activePlanIndex]?.requirements?.find(req => req.ID === cr.ID))
+    const rows = allRequirements.filter((cr) => !allPlans[activePlanIndex]?.requirements?.find(req => req.ID === cr.ID))
 
     //console.log(allRequirements)
 
@@ -235,8 +235,8 @@ export default function Home() {
 
     const today = new Date();
 
-    if (plans[activePlanIndex]) {
-        plans[activePlanIndex].requirements?.forEach((req, i) => {
+    if (allPlans[activePlanIndex]) {
+        allPlans[activePlanIndex].requirements?.forEach((req, i) => {
             data_main.push(["CR" + req.ID, '', new Date(
                 today.getFullYear(),
                 today.getMonth(),
@@ -255,15 +255,15 @@ export default function Home() {
 
     const location_data = [] as [string, [number, number]][]
 
-    if (plans[activePlanIndex]) {
-        plans[activePlanIndex].requirements?.forEach((req, i) => {
+    if (allPlans[activePlanIndex]) {
+        allPlans[activePlanIndex].requirements?.forEach((req, i) => {
             location_data.push(['CR' + req.ID, [Number(req.Coordinates.split("N")[0]), Number(req.Coordinates.split(" ")[1].split("E")[0])]])
         })
     }
 
     const addToPlanHandler = () => {
         addCRsToPlan(selectedRows.map((id) => rows.find(asset => asset.ID.toString() === id)!))
-        console.log('plans', plans)
+        console.log('plans', allPlans)
         setAmountOfAssetsAdded(selectedRows.length)
         setOpen(true);
         setSelectedRows([])
@@ -291,6 +291,10 @@ export default function Home() {
                 <Tab icon={<ViewTimelineIcon />} label="" {...a11yProps(1)} />
                 <Tab icon={<MapIcon />} label="" {...a11yProps(2)} />
             </Tabs>
+
+            <Box sx={{ mt: 2 }}>
+                <PlanSelector plans={allPlans} newPlan={newPlan} activePlanIndex={activePlanIndex} setActivePlanIndex={setActivePlanIndex} />
+            </Box>
 
             <CustomTabPanel value={tabValue} index={0}>
                 <Box sx={{ display: 'flex', justifyContent: "begin", alignItems: "center", width: 'full', mb: 3 }}>
@@ -344,7 +348,7 @@ export default function Home() {
 
             <Snackbar open={open} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
                 <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
-                    Added {amountOfAssetsAdded} Requirements to Plan {plans[activePlanIndex]?.name}
+                    Added {amountOfAssetsAdded} Requirements to Plan {allPlans[activePlanIndex]?.name}
                 </Alert>
             </Snackbar>
         </Box>

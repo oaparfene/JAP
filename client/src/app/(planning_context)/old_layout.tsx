@@ -130,7 +130,6 @@ export default function RootLayout({
                         }}>Create Plan</Button>
                     </Stack>
 
-
                 </Box>
             </Modal>
         </div>
