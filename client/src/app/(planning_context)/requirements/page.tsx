@@ -3,7 +3,7 @@
 import { PlanSelector } from "@/components/PlanSelector"
 import { useContext } from "react"
 import { JAPContext } from "../../context"
-import { Alert, Box, Button, Snackbar, Tab, Tabs, Typography } from "@mui/material"
+import { Alert, Box, Button, IconButton, Snackbar, Tab, Tabs, Typography } from "@mui/material"
 import { DataGrid, GridColDef, GridRowId } from "@mui/x-data-grid"
 import { useState } from "react"
 import MapView from "@/components/MapView"
@@ -11,9 +11,11 @@ import SynchMatrixView from "@/components/SynchMatrixView"
 import MapIcon from '@mui/icons-material/Map';
 import ViewTimelineIcon from '@mui/icons-material/ViewTimeline';
 import TableChartIcon from '@mui/icons-material/TableChart';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import { CustomReqsToolbar } from "@/components/ExcelExport"
 import dynamic from 'next/dynamic';
 import EXCELReqUpload from "@/components/EXCELReqUpload"
+import { useData } from "@/hooks/useData"
 
 const ClientSideMapView = dynamic(() => import('../../../components/MapView'), {
     ssr: false,
@@ -216,6 +218,7 @@ export default function Home() {
     const [selectedRows, setSelectedRows] = useState<string[]>([])
     const [amountOfAssetsAdded, setAmountOfAssetsAdded] = useState<number>(0)
     const [open, setOpen] = useState(false);
+    const { fetchCRsFromBackend } = useData();
 
     const rows = allRequirements.filter((cr) => !plans[activePlanIndex]?.requirements?.find(req => req.ID === cr.ID))
 
@@ -290,11 +293,21 @@ export default function Home() {
             </Tabs>
 
             <CustomTabPanel value={tabValue} index={0}>
-                <Typography
-                    variant="h5"
-                    component="h5"
-                    sx={{ textAlign: 'left', mt: 0, mb: 3 }}
-                >Collection Requirements:</Typography>
+                <Box sx={{ display: 'flex', justifyContent: "begin", alignItems: "center", width: 'full', mb: 3 }}>
+
+                    <Typography
+                        variant="h5"
+                        component="h5"
+                        sx={{ textAlign: 'left', mt: 0 }}
+                    >Collection Requirements</Typography>
+
+                    <IconButton onClick={() => {
+                        fetchCRsFromBackend();
+                    }}>
+                        <RefreshIcon />
+                    </IconButton>
+
+                </Box>
 
                 <Box sx={{ display: 'flex', justifyContent: "space-between", width: 'full' }}>
                     <Button variant='contained' sx={{ mb: 2 }} onClick={addToPlanHandler}>Add Selection to Plan</Button>

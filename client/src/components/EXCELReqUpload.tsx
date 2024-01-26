@@ -5,9 +5,12 @@ import Button from '@mui/material/Button';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { Requirement } from '../hooks/usePlan';
 import { JAPContext } from '../app/context';
-import { Modal, Box, Stack, Typography, TextField } from '@mui/material';
+import { Modal, Box, Stack, Typography, TextField, IconButton } from '@mui/material';
 import { PreRequirement, useData } from '../hooks/useData';
 import * as xlsx from 'xlsx';
+import Divider from '@mui/material/Divider';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
 const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',
@@ -40,6 +43,8 @@ function EXCELReqUpload() {
     const [openNewCRL, setOpenNewCRL] = useState(false);
     const [activeCR, setActiveCR] = useState<Requirement | null>(null);
     const { uploadCRtoBackend } = useData()
+    const [CRsToUpload, setCRsToUpload] = useState<PreRequirement[]>([])
+    const [reviewIndex, setReviewIndex] = useState(0)
 
 
     function mapToPreRequirement(data: any): PreRequirement {
@@ -108,7 +113,9 @@ function EXCELReqUpload() {
                 }
                 )
                 console.log("finalRows: ", finalRows)
-                const added_CRs = await uploadCRtoBackend(finalRows)
+                setCRsToUpload(finalRows)
+                setOpenNewCRL(true)
+                //const added_CRs = await uploadCRtoBackend(finalRows)
 
             }
             reader.onerror = (error) => {
@@ -130,55 +137,86 @@ function EXCELReqUpload() {
                 onClose={() => setOpenNewCRL(false)}
             >
                 <Box sx={style}>
+
+                    <Typography variant="h5" component="h5">
+                        Review CRL:
+                    </Typography>
+
+                    <Box sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                    }}>
+                        <IconButton disabled={reviewIndex === 0} onClick={() => {
+                            if (reviewIndex > 0) setReviewIndex(reviewIndex - 1)
+                        }}>
+                            <ChevronLeftIcon />
+                        </IconButton>
+                        <Typography variant="h6" component="h2" sx={{ textAlign: "center" }}>
+                            {reviewIndex + 1} / {CRsToUpload.length}
+                        </Typography>
+                        <IconButton disabled={reviewIndex + 1 === CRsToUpload.length} onClick={() => {
+                            if (reviewIndex + 1 < CRsToUpload.length) setReviewIndex(reviewIndex + 1)
+                        }}>
+                            <ChevronRightIcon />
+                        </IconButton>
+                    </Box>
+                    <Divider sx={{ mb: 2 }} />
+
                     <Stack gap={2}>
 
-                        <Typography variant="h6" component="h2">
-                            Review CR:
+                        <Typography variant="body1" component="p">
+                            Operation: {CRsToUpload[reviewIndex]?.Operation}
                         </Typography>
                         <Typography variant="body1" component="p">
-                            Operation: {activeCR?.Operation}
+                            Requester: {CRsToUpload[reviewIndex]?.Requester}
                         </Typography>
                         <Typography variant="body1" component="p">
-                            Requester: {activeCR?.Requester}
+                            Location: {CRsToUpload[reviewIndex]?.Location}
                         </Typography>
                         <Typography variant="body1" component="p">
-                            Location: {activeCR?.Location}
+                            Coords: {CRsToUpload[reviewIndex]?.Coordinates}
                         </Typography>
                         <Typography variant="body1" component="p">
-                            Coords: {activeCR?.Coordinates}
+                            Start Time: {CRsToUpload[reviewIndex]?.Coll_Start_Time}
                         </Typography>
                         <Typography variant="body1" component="p">
-                            Start Time: {activeCR?.Coll_Start_Time}
+                            End Time: {CRsToUpload[reviewIndex]?.Coll_End_Time}
                         </Typography>
                         <Typography variant="body1" component="p">
-                            End Time: {activeCR?.Coll_End_Time}
+                            LTIOV: {CRsToUpload[reviewIndex]?.LTIOV}
                         </Typography>
                         <Typography variant="body1" component="p">
-                            LTIOV: {activeCR?.LTIOV}
+                            Required Info: {CRsToUpload[reviewIndex]?.Required_Information}
                         </Typography>
                         <Typography variant="body1" component="p">
-                            Required Info: {activeCR?.Required_Information}
+                            Intel: {CRsToUpload[reviewIndex]?.Intel_Discipline}
                         </Typography>
                         <Typography variant="body1" component="p">
-                            Intel: {activeCR?.Intel_Discipline}
-                        </Typography>
-                        <Typography variant="body1" component="p">
-                            Required Product: {activeCR?.Required_Product}
-                        </Typography>
-                        <Typography variant="body1" component="p">
-                            Recurrance: {activeCR?.Recurrance}
+                            Required Product: {CRsToUpload[reviewIndex]?.Required_Product}
                         </Typography>
 
+                    </Stack>
 
-                        <Button variant='contained' sx={{ mb: 2 }} onClick={() => {
-                            if (!activeCR) return
-                            addCRs([activeCR])
-                            setOpenNewCRL(false)
-                        }}>Upload CR</Button>
-                        <Button variant='contained' sx={{ mb: 2 }} onClick={() => {
+                    <Divider sx={{ mt: 2, mb: 2 }} />
+
+
+                    <Box sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+
+                    }}>
+                        <Button variant='outlined' sx={{ mb: 2 }} onClick={() => {
                             setOpenNewCRL(false)
                         }}>Cancel</Button>
-                    </Stack>
+                        <Button variant='contained' sx={{ mb: 2 }} onClick={() => {
+                            if (CRsToUpload.length === 0) return
+                            uploadCRtoBackend(CRsToUpload)
+                            setOpenNewCRL(false)
+                        }}>Upload CR</Button>
+
+                    </Box>
 
 
                 </Box>
