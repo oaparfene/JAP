@@ -5,7 +5,7 @@ import { generateDataFromORBAT } from "@/constants"
 import { useContext } from "react"
 import { JAPContext } from "../../context"
 import { Alert, Box, Button, IconButton, Snackbar, Tab, Tabs, Typography } from "@mui/material"
-import { DataGrid, GridColDef, GridRowId } from "@mui/x-data-grid"
+import { DataGrid, GridColDef, GridRowId, GridSelectionModel } from "@mui/x-data-grid"
 import { useState } from "react"
 import MapView from "@/components/MapView"
 import SynchMatrixView from "@/components/SynchMatrixView"
@@ -96,7 +96,7 @@ function a11yProps(index: number) {
 export default function Home() {
     const { allAssets, addAssetsToPlan, allPlans, newPlan, activePlanIndex, setActivePlanIndex } = useContext(JAPContext)
     const [pageSize, setPageSize] = useState(10);
-    const [selectedRows, setSelectedRows] = useState<any[]>([])
+    const [selectedRows, setSelectedRows] = useState<GridSelectionModel>([])
     const [amountOfAssetsAdded, setAmountOfAssetsAdded] = useState<number>(0)
     const [open, setOpen] = useState(false);
     const { fetchAssetsFromBackend } = useData();
@@ -196,10 +196,7 @@ export default function Home() {
                         getRowId={(row) => row.ID}
                         columns={columns}
                         onSelectionModelChange={(newSelectedRows) => {
-                            console.log(newSelectedRows)
                             setSelectedRows(newSelectedRows)
-                            console.log(selectedRows)
-                            //setSelectedRows(newSelectedRows);
                         }}
                         selectionModel={selectedRows}
                         rowsPerPageOptions={[5, 10, 20]}

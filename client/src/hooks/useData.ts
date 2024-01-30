@@ -73,6 +73,7 @@ export interface PreRequirement {
     Latest_Report_Time?: string,
     Reporting_Instructions?:
     string,
+    Plans_containing_self?: string,
 }
 
 
@@ -96,15 +97,15 @@ export const useData = () => {
                             AvailableFrom: new Date(asset.AvailableFrom),
                             ...asset
                         }
-                    }),
+                    }) || [],
                     requirements: item.expand?.requirements.map((cr: any, _index: number) => {
                         return {
                             ID: _index,
                             ...cr
                         }
-                    }),
-                    allocation: item.expand?.allocation,
-                    flightPlans: item.expand?.flightPlans
+                    }) || [],
+                    allocation: item.expand?.allocation || [],
+                    flightPlans: item.expand?.flightPlans || []
                 }
             })
             console.log("fetching Plans:", data)
@@ -181,6 +182,7 @@ export const useData = () => {
                     RP_Remarks: item.RP_Remarks,
                     Reporting_Instructions: item.Reporting_Instructions,
                     ER_Remarks: item.ER_Remarks,
+                    Plans_containing_self: item.Plans_containing_self
                 }
             })
             setAllRequirements(reqs_from_data)

@@ -6,7 +6,7 @@ import { generateDataFromORBAT, crs } from "@/constants"
 import { useContext, useEffect } from "react"
 import { JAPContext } from "../../context"
 import { Alert, Box, Button, CircularProgress, IconButton, MenuItem, Snackbar, Stack, Tab, Tabs, Typography } from "@mui/material"
-import { DataGrid, GridColDef, gridFilteredSortedRowIdsSelector, GridRowId, GridToolbar, GridToolbarContainer, GridToolbarExportContainer, gridVisibleColumnFieldsSelector, useGridApiContext } from "@mui/x-data-grid"
+import { DataGrid, GridColDef, gridFilteredSortedRowIdsSelector, GridRowId, GridSelectionModel, GridToolbar, GridToolbarContainer, GridToolbarExportContainer, gridVisibleColumnFieldsSelector, useGridApiContext } from "@mui/x-data-grid"
 import { useState } from "react"
 import { Asset, Requirement } from "@/hooks/usePlan"
 import { useMiniZinc } from "@/hooks/useMiniZinc"
@@ -258,8 +258,8 @@ export default function Home() {
     const { addFlightPlansToPlan, addTasksToPlan, allPlans, activePlanIndex, removeAssetsFromPlan, removeCRsFromPlan, setActivePlanIndex, newPlan } = useContext(JAPContext)
     const { prepareAllocation, loading, allocation, flightPlans } = useMiniZinc()
     const [pageSize, setPageSize] = useState(10);
-    const [selectedCRRows, setSelectedCRRows] = useState<string[]>([])
-    const [selectedAssetRows, setSelectedAssetRows] = useState<string[]>([])
+    const [selectedCRRows, setSelectedCRRows] = useState<GridSelectionModel>([])
+    const [selectedAssetRows, setSelectedAssetRows] = useState<GridSelectionModel>([])
     const [amountOfAssetsRemoved, setAmountOfAssetsRemoved] = useState<number>(0)
     const [amountOfCRsRemoved, setAmountOfCRsRemoved] = useState<number>(0)
     const [openCR, setOpenCR] = useState(false);
@@ -450,10 +450,7 @@ export default function Home() {
                         getRowId={(row) => row.ID}
                         columns={reqColumns}
                         onSelectionModelChange={(newSelectedRows) => {
-                            console.log(newSelectedRows)
-                            setSelectedCRRows(newSelectedRows.map((e) => e.toString()))
-                            console.log(selectedCRRows)
-                            //setSelectedRows(newSelectedRows);
+                            setSelectedCRRows(newSelectedRows)
                         }}
                         selectionModel={selectedCRRows}
                         rowsPerPageOptions={[5, 10, 20]}
@@ -481,10 +478,7 @@ export default function Home() {
                         getRowId={(row) => row.ID}
                         columns={assetColumns}
                         onSelectionModelChange={(newSelectedRows) => {
-                            console.log(newSelectedRows)
-                            setSelectedAssetRows(newSelectedRows.map((e) => e.toString()))
-                            console.log(selectedAssetRows)
-                            //setSelectedRows(newSelectedRows);
+                            setSelectedAssetRows(newSelectedRows)
                         }}
                         selectionModel={selectedAssetRows}
                         rowsPerPageOptions={[5, 10, 20]}
@@ -504,7 +498,7 @@ export default function Home() {
             </CustomTabPanel>
 
             <CustomTabPanel value={tabValue} index={1}>
-                <SynchMatrixView title="Allocation Gantt View" data={[data_main]} crsCollected={allPlans[activePlanIndex]?.allocation.length} totalCRs={allPlans[activePlanIndex]?.requirements?.length}></SynchMatrixView>
+                <SynchMatrixView title="Allocation Gantt View" data={[data_main]} crsCollected={allPlans[activePlanIndex]?.allocation?.length} totalCRs={allPlans[activePlanIndex]?.requirements?.length}></SynchMatrixView>
                 <SynchMatrixView title="" data={[data_inv]} colorByRowLabel></SynchMatrixView>
             </CustomTabPanel>
 

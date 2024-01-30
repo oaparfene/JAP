@@ -44,14 +44,10 @@ export const PlanSelector = () => {
             flexDirection: 'row',
             justifyContent: 'start',
             alignItems: 'center',
-            gap: 4,
+            gap: 2,
         }}>
 
-            <IconButton onClick={() => {
-                setOpenNewPlan(true)
-            }}>
-                <CreateNewFolderIcon />
-            </IconButton>
+
 
             <FormControl sx={{
                 minWidth: 120,
@@ -75,6 +71,12 @@ export const PlanSelector = () => {
             }}>
                 <RefreshIcon />
             </IconButton>
+
+            <Button variant="contained" onClick={() => {
+                setOpenNewPlan(true)
+            }}>
+                + New
+            </Button>
 
             <Modal
                 open={openNewPlan}

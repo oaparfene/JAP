@@ -1,10 +1,10 @@
 'use client'
 
 import { PlanSelector } from "@/components/PlanSelector"
-import { useContext } from "react"
+import { useContext, useEffect } from "react"
 import { JAPContext } from "../../context"
-import { Alert, Box, Button, IconButton, Snackbar, Tab, Tabs, Typography } from "@mui/material"
-import { DataGrid, GridColDef, GridRowId } from "@mui/x-data-grid"
+import { Alert, Box, Button, Chip, IconButton, MenuItem, OutlinedInput, Select, Snackbar, Tab, Tabs, Typography } from "@mui/material"
+import { DataGrid, GridColDef, GridRowId, GridSelectionModel } from "@mui/x-data-grid"
 import { useState } from "react"
 import MapView from "@/components/MapView"
 import SynchMatrixView from "@/components/SynchMatrixView"
@@ -16,168 +16,13 @@ import { CustomReqsToolbar } from "@/components/ExcelExport"
 import dynamic from 'next/dynamic';
 import EXCELReqUpload from "@/components/EXCELReqUpload"
 import { useData } from "@/hooks/useData"
+import { Requirement } from "@/hooks/usePlan"
 
 const ClientSideMapView = dynamic(() => import('../../../components/MapView'), {
     ssr: false,
 });
 
-const columns: GridColDef[] = [
-    {
-        field: 'ID',
-        headerName: 'ID',
-        width: 20,
-    },
-    {
-        field: 'Operation',
-        headerName: 'Operation',
-        width: 200,
-    },
-    // {
-    //     field: 'Requester',
-    //     headerName: 'Requester',
-    //     width: 100,
-    // },
-    // {
-    //     field: 'CR_Rank',
-    //     headerName: 'CR Rank',
-    //     width: 20,
-    // },
-    // {
-    //     field: 'Justification',
-    //     headerName: 'Justification',
-    //     width: 200,
-    // },
-    // {
-    //     field: 'Status',
-    //     headerName: 'Status',
-    //     width: 120,
-    // },
-    {
-        field: 'Location',
-        headerName: 'Location',
-        width: 200,
-    },
-    // {
-    //     field: 'Shape',
-    //     headerName: 'Shape',
-    //     width: 100,
-    // },
-    // {
-    //     field: 'Location_Type',
-    //     headerName: 'Location Type',
-    //     width: 150,
-    // },
-    {
-        field: 'Coordinates',
-        headerName: 'Coordinates',
-        width: 200,
-    },
-    // {
-    //     field: 'Circle_Radius',
-    //     headerName: 'Circle Radius',
-    //     width: 100,
-    // },
-    // {
-    //     field: 'Target_ID',
-    //     headerName: 'Target ID',
-    //     width: 150,
-    // },
-    // {
-    //     field: 'Location_Category',
-    //     headerName: 'Location Category',
-    //     width: 200,
-    // },
-    // {
-    //     field: 'Coll_Start_Date',
-    //     headerName: 'Coll Start Date',
-    //     width: 100,
-    // },
-    // {
-    //     field: 'Coll_End_Date',
-    //     headerName: 'Coll End Date',
-    //     width: 100,
-    // },
-    {
-        field: 'Coll_Start_Time',
-        headerName: 'Coll Start Time',
-        width: 100,
-    },
-    {
-        field: 'Coll_End_Time',
-        headerName: 'Coll End Time',
-        width: 100,
-    },
-    // {
-    //     field: 'Recurrance',
-    //     headerName: 'Recurrance',
-    //     width: 100,
-    // },
-    // {
-    //     field: 'ISR_Role',
-    //     headerName: 'ISR Role',
-    //     width: 100,
-    // },
-    // {
-    //     field: 'Sensor_Visibility',
-    //     headerName: 'Sensor Visibility',
-    //     width: 100,
-    // },
-    {
-        field: 'Required_Information',
-        headerName: 'Required Information',
-        width: 700,
-    },
-    {
-        field: 'Intel_Discipline',
-        headerName: 'Intel Discipline',
-        width: 100,
-    },
-    // {
-    //     field: 'Exploitation_Requirement',
-    //     headerName: 'Exploitation Requirement',
-    //     width: 200,
-    // },
-    // {
-    //     field: 'ER_Remarks',
-    //     headerName: 'ER Remarks',
-    //     width: 200,
-    // },
-    // {
-    //     field: 'ER_Report_Frequency',
-    //     headerName: 'ER Report Frequency',
-    //     width: 200,
-    // },
-    {
-        field: 'Required_Product',
-        headerName: 'Required Product',
-        width: 200,
-    },
-    // {
-    //     field: 'RP_Remarks',
-    //     headerName: 'RP Remarks',
-    //     width: 200,
-    // },
-    // {
-    //     field: 'RP_Report_Frequency',
-    //     headerName: 'RP Report Frequency',
-    //     width: 200,
-    // },
-    {
-        field: 'LTIOV',
-        headerName: 'LTIOV',
-        width: 200,
-    },
-    // {
-    //     field: 'Latest_Report_Time',
-    //     headerName: 'Latest Report Time',
-    //     width: 200,
-    // },
-    // {
-    //     field: 'Reporting_Instructions',
-    //     headerName: 'Reporting Instructions',
-    //     width: 200,
-    // },
-];
+
 
 interface TabPanelProps {
     children?: React.ReactNode;
@@ -215,12 +60,221 @@ function a11yProps(index: number) {
 export default function Home() {
     const { allRequirements, addCRsToPlan, allPlans, newPlan, activePlanIndex, setActivePlanIndex } = useContext(JAPContext)
     const [pageSize, setPageSize] = useState(10);
-    const [selectedRows, setSelectedRows] = useState<string[]>([])
+    const [selectedRows, setSelectedRows] = useState<GridSelectionModel>([])
     const [amountOfAssetsAdded, setAmountOfAssetsAdded] = useState<number>(0)
     const [open, setOpen] = useState(false);
     const { fetchCRsFromBackend } = useData();
+    const [rows, setRows] = useState<Requirement[]>([])
 
-    const rows = allRequirements.filter((cr) => !allPlans[activePlanIndex]?.requirements?.find(req => req.ID === cr.ID))
+    useEffect(() => {
+        setRows(allRequirements)
+    }, [allRequirements])
+
+    console.log('rows', rows)
+
+    //const rows = allRequirements.filter((cr) => !allPlans[activePlanIndex]?.requirements?.find(req => req.ID === cr.ID))
+
+    const handlePlanSelectionChange = (rowId: any, event: any) => {
+        setRows((prevRows: any) =>
+            prevRows.map((row: any) =>
+                row.ID === rowId ? { ...row, Plans_containing_self: event?.target.value } : row
+            )
+        );
+    };
+
+    const PlanSelectComponent = ({ param, value, options }: any) => {
+        return (
+            <Select
+                sx={{ w: '200px', bgcolor: value.includes(allPlans[activePlanIndex]?.db_id) ? '#238823' : value.length > 0 ? '#ffbf00' : 'white' }}
+                multiple
+                value={value}
+                onChange={(e, node) => {
+                    handlePlanSelectionChange(param.id, e)
+                }}
+                input={<OutlinedInput id="select-multiple-chip" sx={{ w: '200px' }} />}
+                renderValue={(selected) => (
+                    <div>
+                        {selected.map((value: any) => (
+                            <Chip key={value} label={allPlans.find(plan => plan.db_id === value)?.name} />
+                        ))}
+                    </div>
+                )}
+            >
+                {options.map((option: any) => (
+                    <MenuItem key={option} value={option}>
+                        {allPlans.find(plan => plan.db_id === option)?.name}
+                    </MenuItem>
+                ))}
+            </Select>
+        )
+    }
+
+    const columns: GridColDef[] = [
+        {
+            field: 'ID',
+            headerName: 'ID',
+            width: 20,
+        },
+        {
+            field: 'Plans_containing_self',
+            headerName: 'Plans',
+            width: 250,
+            renderCell: (params) => <PlanSelectComponent param={params} value={allPlans.filter(plan => params.value.includes(plan.db_id)).map(plan => plan.db_id)}
+                options={allPlans.map(plan => plan.db_id)} // Replace with your options
+            />
+        },
+        {
+            field: 'Operation',
+            headerName: 'Operation',
+            width: 100,
+        },
+        {
+            field: 'Coordinates',
+            headerName: 'Coordinates',
+            width: 200,
+        },
+        // {
+        //     field: 'Requester',
+        //     headerName: 'Requester',
+        //     width: 100,
+        // },
+        // {
+        //     field: 'CR_Rank',
+        //     headerName: 'CR Rank',
+        //     width: 20,
+        // },
+        // {
+        //     field: 'Justification',
+        //     headerName: 'Justification',
+        //     width: 200,
+        // },
+        // {
+        //     field: 'Status',
+        //     headerName: 'Status',
+        //     width: 120,
+        // },
+        {
+            field: 'Location',
+            headerName: 'Location',
+            width: 200,
+        },
+        // {
+        //     field: 'Shape',
+        //     headerName: 'Shape',
+        //     width: 100,
+        // },
+        // {
+        //     field: 'Location_Type',
+        //     headerName: 'Location Type',
+        //     width: 150,
+        // },
+
+        // {
+        //     field: 'Circle_Radius',
+        //     headerName: 'Circle Radius',
+        //     width: 100,
+        // },
+        // {
+        //     field: 'Target_ID',
+        //     headerName: 'Target ID',
+        //     width: 150,
+        // },
+        // {
+        //     field: 'Location_Category',
+        //     headerName: 'Location Category',
+        //     width: 200,
+        // },
+        // {
+        //     field: 'Coll_Start_Date',
+        //     headerName: 'Coll Start Date',
+        //     width: 100,
+        // },
+        // {
+        //     field: 'Coll_End_Date',
+        //     headerName: 'Coll End Date',
+        //     width: 100,
+        // },
+        {
+            field: 'Coll_Start_Time',
+            headerName: 'Coll Start Time',
+            width: 100,
+        },
+        {
+            field: 'Coll_End_Time',
+            headerName: 'Coll End Time',
+            width: 100,
+        },
+        // {
+        //     field: 'Recurrance',
+        //     headerName: 'Recurrance',
+        //     width: 100,
+        // },
+        // {
+        //     field: 'ISR_Role',
+        //     headerName: 'ISR Role',
+        //     width: 100,
+        // },
+        // {
+        //     field: 'Sensor_Visibility',
+        //     headerName: 'Sensor Visibility',
+        //     width: 100,
+        // },
+        {
+            field: 'Required_Information',
+            headerName: 'Required Information',
+            width: 700,
+        },
+        {
+            field: 'Intel_Discipline',
+            headerName: 'Intel Discipline',
+            width: 100,
+        },
+        // {
+        //     field: 'Exploitation_Requirement',
+        //     headerName: 'Exploitation Requirement',
+        //     width: 200,
+        // },
+        // {
+        //     field: 'ER_Remarks',
+        //     headerName: 'ER Remarks',
+        //     width: 200,
+        // },
+        // {
+        //     field: 'ER_Report_Frequency',
+        //     headerName: 'ER Report Frequency',
+        //     width: 200,
+        // },
+        {
+            field: 'Required_Product',
+            headerName: 'Required Product',
+            width: 200,
+        },
+        // {
+        //     field: 'RP_Remarks',
+        //     headerName: 'RP Remarks',
+        //     width: 200,
+        // },
+        // {
+        //     field: 'RP_Report_Frequency',
+        //     headerName: 'RP Report Frequency',
+        //     width: 200,
+        // },
+        {
+            field: 'LTIOV',
+            headerName: 'LTIOV',
+            width: 200,
+        },
+        // {
+        //     field: 'Latest_Report_Time',
+        //     headerName: 'Latest Report Time',
+        //     width: 200,
+        // },
+        // {
+        //     field: 'Reporting_Instructions',
+        //     headerName: 'Reporting Instructions',
+        //     width: 200,
+        // },
+    ];
 
     //console.log(allRequirements)
 
@@ -324,10 +378,7 @@ export default function Home() {
                         getRowId={(row) => row.ID}
                         columns={columns}
                         onSelectionModelChange={(newSelectedRows) => {
-                            console.log("new selection:", newSelectedRows)
-                            setSelectedRows(newSelectedRows.map((e) => e.toString()))
-                            console.log("selectedRows: ", selectedRows)
-                            //setSelectedRows(newSelectedRows);
+                            setSelectedRows(newSelectedRows)
                         }}
                         selectionModel={selectedRows}
                         rowsPerPageOptions={[5, 10, 20]}

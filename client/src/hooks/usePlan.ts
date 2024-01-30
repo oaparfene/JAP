@@ -75,6 +75,7 @@ export interface Requirement {
     Latest_Report_Time?: string,
     Reporting_Instructions?:
         string,
+    Plans_containing_self?: string,
 }
 
 export const usePlan = () => {
