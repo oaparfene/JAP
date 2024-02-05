@@ -79,7 +79,7 @@ export interface PreRequirement {
 
 export const useData = () => {
 
-    
+
     const { allAssets, allRequirements, setAllAssets, setAllRequirements, allPlans, setAllPlans } = useContext(JAPContext)
     const { BackendAPIURL } = useContext(SettingsContext)
     const pb = new PocketBase(BackendAPIURL);
@@ -129,7 +129,8 @@ export const useData = () => {
                     Sensor: item.Sensor,
                     Unit: item.Unit,
                     Location: item.Location,
-                    Capacity: item.Capacity
+                    Capacity: item.Capacity,
+                    Plans_containing_self: item.Plans_containing_self
                 }
             })
             //console.log(data)
@@ -254,40 +255,68 @@ export const useData = () => {
         const newcrs: Requirement[] = []
 
         crs.forEach(async (cr) => {
-            console.log(cr.Justification)
-            const res = await pb.collection('Requirements').create({
-                Operation: cr.Operation,
-                Requester: cr.Requester,
-                CR_Rank: cr.CR_Rank,
-                Justification: cr.Justification,
-                Location: cr.Location,
-                Coordinates: cr.Coordinates,
-                Target_ID: cr.Target_ID,
-                Location_Category: cr.Location_Category,
-                Coll_Start_Time: cr.Coll_Start_Time,
-                Coll_End_Time: cr.Coll_End_Time,
-                Sensor_Visibility: cr.Sensor_Visibility,
-                LTIOV: cr.LTIOV,
-                Status: cr.Status,
-                Required_Information: cr.Required_Information,
-                Intel_Discipline: cr.Intel_Discipline,
-                Required_Product: cr.Required_Product,
-                ER_Report_Frequency: cr.ER_Report_Frequency,
-                Recurrance: cr.Recurrance,
-                RP_Remarks: cr.RP_Remarks,
-                Reporting_Instructions: cr.Reporting_Instructions,
-                ER_Remarks: cr.ER_Remarks,
-            }, {
-                requestKey: null
-            });
-            const newCR = {
-                db_id: res.id,
-                ...cr
-            } as Requirement
-            newcrs.push(newCR)
-            console.log(res)
+            if ('db_id' in cr) {
+                const res = await pb.collection('Requirements').update(cr.db_id as string, {
+                    Operation: cr.Operation,
+                    Requester: cr.Requester,
+                    CR_Rank: cr.CR_Rank,
+                    Justification: cr.Justification,
+                    Location: cr.Location,
+                    Coordinates: cr.Coordinates,
+                    Target_ID: cr.Target_ID,
+                    Location_Category: cr.Location_Category,
+                    Coll_Start_Time: cr.Coll_Start_Time,
+                    Coll_End_Time: cr.Coll_End_Time,
+                    Sensor_Visibility: cr.Sensor_Visibility,
+                    LTIOV: cr.LTIOV,
+                    Status: cr.Status,
+                    Required_Information: cr.Required_Information,
+                    Intel_Discipline: cr.Intel_Discipline,
+                    Required_Product: cr.Required_Product,
+                    ER_Report_Frequency: cr.ER_Report_Frequency,
+                    Recurrance: cr.Recurrance,
+                    RP_Remarks: cr.RP_Remarks,
+                    Reporting_Instructions: cr.Reporting_Instructions,
+                    ER_Remarks: cr.ER_Remarks,
+                    Plans_containing_self: cr.Plans_containing_self
+                });
+                console.log(res)
+                newcrs.push(cr as Requirement)
+            } else {
+                const res = await pb.collection('Requirements').create({
+                    Operation: cr.Operation,
+                    Requester: cr.Requester,
+                    CR_Rank: cr.CR_Rank,
+                    Justification: cr.Justification,
+                    Location: cr.Location,
+                    Coordinates: cr.Coordinates,
+                    Target_ID: cr.Target_ID,
+                    Location_Category: cr.Location_Category,
+                    Coll_Start_Time: cr.Coll_Start_Time,
+                    Coll_End_Time: cr.Coll_End_Time,
+                    Sensor_Visibility: cr.Sensor_Visibility,
+                    LTIOV: cr.LTIOV,
+                    Status: cr.Status,
+                    Required_Information: cr.Required_Information,
+                    Intel_Discipline: cr.Intel_Discipline,
+                    Required_Product: cr.Required_Product,
+                    ER_Report_Frequency: cr.ER_Report_Frequency,
+                    Recurrance: cr.Recurrance,
+                    RP_Remarks: cr.RP_Remarks,
+                    Reporting_Instructions: cr.Reporting_Instructions,
+                    ER_Remarks: cr.ER_Remarks,
+                }, {
+                    requestKey: null
+                });
+                console.log(res)
+                const newCR = {
+                    db_id: res.id,
+                    ...cr
+                } as Requirement
+                newcrs.push(newCR)
+            }
         })
-        console.log("inb4 refresh CRs from Backend")
+        //console.log("inb4 refresh CRs from Backend")
         //await fetchCRsFromBackend()
         return newcrs
     }

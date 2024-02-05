@@ -2,9 +2,9 @@
 
 import { PlanSelector } from "@/components/PlanSelector"
 import { generateDataFromORBAT } from "@/constants"
-import { useContext } from "react"
+import { useContext, useEffect } from "react"
 import { JAPContext } from "../../context"
-import { Alert, Box, Button, IconButton, Snackbar, Tab, Tabs, Typography } from "@mui/material"
+import { Alert, Box, Button, Chip, IconButton, MenuItem, OutlinedInput, Select, Snackbar, Tab, Tabs, Typography } from "@mui/material"
 import { DataGrid, GridColDef, GridRowId, GridSelectionModel } from "@mui/x-data-grid"
 import { useState } from "react"
 import MapView from "@/components/MapView"
@@ -22,43 +22,7 @@ const ClientSideMapView = dynamic(() => import('../../../components/MapView'), {
     ssr: false,
 });
 
-const columns: GridColDef[] = [
-    {
-        field: 'UniquePlatformID',
-        headerName: 'ID',
-        width: 200,
-    },
-    {
-        field: 'Description',
-        headerName: 'Description',
-        width: 200,
-    },
-    {
-        field: 'Capacity',
-        headerName: 'Capacity',
-        width: 100,
-    },
-    {
-        field: 'Location',
-        headerName: 'Location',
-        width: 200,
-    },
-    {
-        field: 'Sensor',
-        headerName: 'Sensor',
-        width: 100,
-    },
-    {
-        field: 'Unit',
-        headerName: 'Unit',
-        width: 200,
-    },
-    {
-        field: 'AvailableFrom',
-        headerName: 'AvailableFrom',
-        width: 200,
-    },
-]
+
 
 interface TabPanelProps {
     children?: React.ReactNode;
@@ -100,10 +64,100 @@ export default function Home() {
     const [amountOfAssetsAdded, setAmountOfAssetsAdded] = useState<number>(0)
     const [open, setOpen] = useState(false);
     const { fetchAssetsFromBackend } = useData();
+    const [rows, setRows] = useState<Asset[]>([])
+
+    useEffect(() => {
+        setRows(allAssets)
+    }, [allAssets])
+
+    const handlePlanSelectionChange = (rowId: any, event: any) => {
+        setRows((prevRows: any) =>
+            prevRows.map((row: any) =>
+                row.ID === rowId ? { ...row, Plans_containing_self: event?.target.value } : row
+            )
+        );
+    };
+
+    const PlanSelectComponent = ({ param, value, options }: any) => {
+        return (
+            <Select
+                sx={{ w: '200px', bgcolor: value.includes(allPlans[activePlanIndex]?.db_id) ? '#238823' : value.length > 0 ? '#ffbf00' : 'white' }}
+                multiple
+                value={value}
+                onChange={(e, node) => {
+                    handlePlanSelectionChange(param.id, e)
+                }}
+                input={<OutlinedInput id="select-multiple-chip" sx={{ w: '200px' }} />}
+                renderValue={(selected) => (
+                    <div>
+                        {selected.map((value: any) => (
+                            <Chip key={value} label={allPlans.find(plan => plan.db_id === value)?.name} />
+                        ))}
+                    </div>
+                )}
+            >
+                {options.map((option: any) => (
+                    <MenuItem key={option} value={option}>
+                        {allPlans.find(plan => plan.db_id === option)?.name}
+                    </MenuItem>
+                ))}
+            </Select>
+        )
+    }
 
     // console.log('allAssets', allAssets)
 
-    const rows = allAssets.filter((asset) => !allPlans[activePlanIndex]?.assets?.find(el => el.ID === asset.ID))
+    const columns: GridColDef[] = [
+        {
+            field: 'UniquePlatformID',
+            headerName: 'ID',
+            width: 200,
+        },
+        {
+            field: 'Plans_containing_self',
+            headerName: 'Plans',
+            width: 250,
+            renderCell: (params) => <PlanSelectComponent param={params} value={allPlans.filter(plan => params.value.includes(plan.db_id)).map(plan => plan.db_id)}
+                options={allPlans.map(plan => plan.db_id)} // Replace with your options
+            />
+        },
+        {
+            field: 'Description',
+            headerName: 'Description',
+            width: 200,
+        },
+        {
+            field: 'Capacity',
+            headerName: 'Capacity',
+            width: 100,
+        },
+        {
+            field: 'Location',
+            headerName: 'Location',
+            width: 200,
+        },
+        {
+            field: 'Sensor',
+            headerName: 'Sensor',
+            width: 100,
+        },
+        {
+            field: 'Unit',
+            headerName: 'Unit',
+            width: 200,
+        },
+        {
+            field: 'AvailableFrom',
+            headerName: 'AvailableFrom',
+            width: 200,
+        },
+    ]
+
+    //const rows = allAssets.filter((asset) => !allPlans[activePlanIndex]?.assets?.find(el => el.ID === asset.ID))
+
+    const saveAssetsHandler = () => {
+
+    }
 
     const data_main: any = [
         [
@@ -188,7 +242,9 @@ export default function Home() {
 
                 </Box>
 
-                <Button variant='contained' sx={{ mb: 2 }} onClick={addToPlanHandler}>Add Selection to Plan</Button>
+                <Button variant='contained' sx={{ mb: 2 }} onClick={saveAssetsHandler}>Save</Button>
+
+                {/* <Button variant='contained' sx={{ mb: 2 }} onClick={addToPlanHandler}>Add Selection to Plan</Button> */}
 
                 <Box sx={{ height: 650, width: '100%' }}>
                     <DataGrid

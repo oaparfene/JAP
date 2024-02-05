@@ -58,12 +58,12 @@ function a11yProps(index: number) {
 }
 
 export default function Home() {
-    const { allRequirements, addCRsToPlan, allPlans, newPlan, activePlanIndex, setActivePlanIndex } = useContext(JAPContext)
+    const { allRequirements, addCRsToPlan, removeCRsFromPlan, allPlans, newPlan, activePlanIndex, setActivePlanIndex } = useContext(JAPContext)
     const [pageSize, setPageSize] = useState(10);
     const [selectedRows, setSelectedRows] = useState<GridSelectionModel>([])
     const [amountOfAssetsAdded, setAmountOfAssetsAdded] = useState<number>(0)
     const [open, setOpen] = useState(false);
-    const { fetchCRsFromBackend } = useData();
+    const { fetchCRsFromBackend, uploadCRtoBackend } = useData();
     const [rows, setRows] = useState<Requirement[]>([])
 
     useEffect(() => {
@@ -315,6 +315,43 @@ export default function Home() {
         })
     }
 
+    const saveRequirementsHandler = () => {
+        console.log('rows', rows)
+        //addCRsToPlan(selectedRows.map((id) => rows.find(asset => asset.ID.toString() === id)!))
+        rows.map((row) => {
+            // loop over all requirements that have been edited
+            if (!allRequirements.includes(row)) {
+                console.log('row changed: ', row)
+                
+                // loop over all plans that contain the edited requirement
+                row.Plans_containing_self?.map((planId) => {
+                    // if the plan already contains the requirement, do nothing
+                    if (allPlans.find(plan => plan.db_id === planId)?.requirements?.find(req => req.ID === row.ID)) {
+                        console.log('plan already contains req')
+                    }
+                    // if the plan does not contain the requirement, add it
+                    else {
+                        //addCRsToPlan([row], planId)
+                    }
+                })
+
+                // loop over all the plan ids the requirement was removed from
+                allPlans.map((plan) => {
+                    if (!row.Plans_containing_self?.includes(plan.db_id) && plan.requirements?.find(req => req.ID === row.ID)) {
+                        console.log('req removed from plan')
+                        //removeCRsFromPlan([row], plan.db_id)
+                    }
+                })
+                
+                uploadCRtoBackend([row])
+            }
+
+        })
+        setOpen(true);
+        setSelectedRows([])
+
+    }
+
     const addToPlanHandler = () => {
         addCRsToPlan(selectedRows.map((id) => rows.find(asset => asset.ID.toString() === id)!))
         console.log('plans', allPlans)
@@ -368,7 +405,8 @@ export default function Home() {
                 </Box>
 
                 <Box sx={{ display: 'flex', justifyContent: "space-between", width: 'full' }}>
-                    <Button variant='contained' sx={{ mb: 2 }} onClick={addToPlanHandler}>Add Selection to Plan</Button>
+                    {/* <Button variant='contained' sx={{ mb: 2 }} onClick={addToPlanHandler}>Add Selection to Plan</Button> */}
+                    <Button variant='contained' sx={{ mb: 2 }} onClick={saveRequirementsHandler}>Save</Button>
                     <EXCELReqUpload />
                 </Box>
 
@@ -399,7 +437,7 @@ export default function Home() {
 
             <Snackbar open={open} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
                 <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
-                    Added {amountOfAssetsAdded} Requirements to Plan {allPlans[activePlanIndex]?.name}
+                    Your changes have been Saved!
                 </Alert>
             </Snackbar>
         </Box>

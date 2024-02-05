@@ -37,7 +37,8 @@ export interface Asset {
     Sensor: string,
     Unit: string,
     Location: string,
-    Capacity: string
+    Capacity: string,
+    Plans_containing_self?: string[],
 }
 
 export interface Requirement {
@@ -63,7 +64,7 @@ export interface Requirement {
     ISR_Role?: string,
     Sensor_Visibility?: string,
     Required_Information:
-        string,
+    string,
     Intel_Discipline: string,
     Exploitation_Requirement?: string,
     ER_Remarks?: string,
@@ -74,8 +75,8 @@ export interface Requirement {
     LTIOV: string,
     Latest_Report_Time?: string,
     Reporting_Instructions?:
-        string,
-    Plans_containing_self?: string,
+    string,
+    Plans_containing_self?: string[],
 }
 
 export const usePlan = () => {
@@ -121,34 +122,74 @@ export const usePlan = () => {
         //console.log('activePlanIndex: ', activePlanIndex)
     }
 
-    const addCRsToPlan = (CRsToAdd: Requirement[]) => {
-        var tempPlans = allPlans
-        var plan = tempPlans[activePlanIndex]
-        const updatedPlan = {
-            db_id: plan.db_id,
-            name: plan.name,
-            assets: plan.assets,
-            requirements: [...new Set(plan.requirements.concat(CRsToAdd))],
-            allocation: plan.allocation,
-            flightPlans: plan.flightPlans
+    const addCRsToPlan = (CRsToAdd: Requirement[], plan_id?: string) => {
+        if (!plan_id) {
+            plan_id = allPlans[activePlanIndex].db_id
+
+            var tempPlans = allPlans
+            var plan = tempPlans[activePlanIndex]
+            const updatedPlan = {
+                db_id: plan.db_id,
+                name: plan.name,
+                assets: plan.assets,
+                requirements: [...new Set(plan.requirements.concat(CRsToAdd))],
+                allocation: plan.allocation,
+                flightPlans: plan.flightPlans
+            }
+            tempPlans[activePlanIndex] = updatedPlan
+            //setPlans(tempPlans)
+        } else if (!!plan_id) {
+            var tempPlans = allPlans
+            // @ts-ignore
+            var plan = tempPlans.find(el => el.db_id === plan_id)
+            if (!plan) return
+            const updatedPlan = {
+                db_id: plan.db_id,
+                name: plan.name,
+                assets: plan.assets,
+                requirements: [...new Set(plan.requirements.concat(CRsToAdd))],
+                allocation: plan.allocation,
+                flightPlans: plan.flightPlans
+            }
+            const index = tempPlans.findIndex(el => el.db_id === plan_id)
+            tempPlans[index] = updatedPlan
+            //setPlans(tempPlans)
         }
-        tempPlans[activePlanIndex] = updatedPlan
-        //setPlans(tempPlans)
     }
 
-    const removeCRsFromPlan = (CRsToRemove: Requirement[]) => {
+    const removeCRsFromPlan = (CRsToRemove: Requirement[], plan_id?: string) => {
+        if (!plan_id) {
+            plan_id = allPlans[activePlanIndex].db_id
+
         var tempPlans = allPlans
         var plan = tempPlans[activePlanIndex]
         const updatedPlan = {
             db_id: plan.db_id,
             name: plan.name,
             assets: plan.assets,
-            requirements: plan.requirements.filter(el => !CRsToRemove.includes(el)),
+            requirements: plan.requirements.filter(el => !CRsToRemove.find(el2 => el2.db_id === el.db_id)),
             allocation: plan.allocation,
             flightPlans: plan.flightPlans
         }
         tempPlans[activePlanIndex] = updatedPlan
         //setPlans(tempPlans)
+    } else if (!!plan_id) {
+        var tempPlans = allPlans
+        // @ts-ignore
+        var plan = tempPlans.find(el => el.db_id === plan_id)
+        if (!plan) return
+        const updatedPlan = {
+            db_id: plan.db_id,
+            name: plan.name,
+            assets: plan.assets,
+            requirements: plan.requirements.filter(el => !CRsToRemove.find(el2 => el2.db_id === el.db_id)),
+            allocation: plan.allocation,
+            flightPlans: plan.flightPlans
+        }
+        const index = tempPlans.findIndex(el => el.db_id === plan_id)
+        tempPlans[index] = updatedPlan
+        //setPlans(tempPlans)
+    }
     }
 
     const addAssetsToPlan = (assetsToAdd: Asset[]) => {
@@ -158,7 +199,7 @@ export const usePlan = () => {
         const updatedPlan = {
             db_id: plan.db_id,
             name: plan.name,
-            assets: addAssetsWithNoDuplicates(plan.assets, assetsToAdd) ,
+            assets: addAssetsWithNoDuplicates(plan.assets, assetsToAdd),
             requirements: plan.requirements,
             allocation: plan.allocation,
             flightPlans: plan.flightPlans
@@ -218,7 +259,7 @@ export const usePlan = () => {
         items.forEach(item => {
             console.log('item to add:', item)
             if (!tempArray.find(el => el.ID === item.ID))
-                tempArray = [ ...tempArray, item]
+                tempArray = [...tempArray, item]
         })
         return tempArray
     }
