@@ -443,3 +443,8 @@ export default function Home() {
         </Box>
     )
 }
+
+// add multiple requirements to plan after filtering
+// identify best place to modify
+// in the application or in the minizinc model?
+// dropdown with text search in plans view to fix allocations

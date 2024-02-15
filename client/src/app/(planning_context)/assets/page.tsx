@@ -63,7 +63,7 @@ export default function Home() {
     const [selectedRows, setSelectedRows] = useState<GridSelectionModel>([])
     const [amountOfAssetsAdded, setAmountOfAssetsAdded] = useState<number>(0)
     const [open, setOpen] = useState(false);
-    const { fetchAssetsFromBackend } = useData();
+    const { fetchAssetsFromBackend, uploadAssetToBackend } = useData();
     const [rows, setRows] = useState<Asset[]>([])
 
     useEffect(() => {
@@ -156,6 +156,19 @@ export default function Home() {
     //const rows = allAssets.filter((asset) => !allPlans[activePlanIndex]?.assets?.find(el => el.ID === asset.ID))
 
     const saveAssetsHandler = () => {
+        console.log('rows', rows)
+        //addCRsToPlan(selectedRows.map((id) => rows.find(asset => asset.ID.toString() === id)!))
+        rows.map((row) => {
+            // loop over all requirements that have been edited
+            if (!allAssets.includes(row)) {
+                console.log('row changed: ', row)
+                
+                uploadAssetToBackend([row])
+            }
+
+        })
+        setOpen(true);
+        setSelectedRows([])
 
     }
 

@@ -316,25 +316,68 @@ export const useData = () => {
                 newcrs.push(newCR)
             }
         })
-        //console.log("inb4 refresh CRs from Backend")
-        //await fetchCRsFromBackend()
         return newcrs
     }
 
-    const uploadAssetToBackend = async (asset: PreAsset | Asset) => {
-        const res = await pb.collection('Assets').create({
-            UniquePlatformID: asset.UniquePlatformID,
-            Description: asset.Description,
-            AvailableFrom: asset.AvailableFrom,
-            Sensor: asset.Sensor,
-            Unit: asset.Unit,
-            Location: asset.Location,
-            Capacity: asset.Capacity
-        });
-        console.log(res)
-        await fetchAssetsFromBackend()
-        return res.id
+    //
+
+    const uploadAssetToBackend = async (assets: PreAsset[] | Asset[]) => {
+
+        const newAssets: Asset[] = []
+
+        assets.forEach(async (asset: Asset | PreAsset) => {
+            if ('db_id' in asset) {
+                const res = await pb.collection('Assets').update(asset.db_id as string, {
+                    UniquePlatformID: asset.UniquePlatformID,
+                    Description: asset.Description,
+                    AvailableFrom: asset.AvailableFrom,
+                    Sensor: asset.Sensor,
+                    Unit: asset.Unit,
+                    Location: asset.Location,
+                    Capacity: asset.Capacity,
+                    Plans_containing_self: asset.Plans_containing_self
+                });
+                console.log(res)
+                newAssets.push(asset as Asset)
+            } else {
+                const res = await pb.collection('Assets').create({
+                    UniquePlatformID: asset.UniquePlatformID,
+                    Description: asset.Description,
+                    AvailableFrom: asset.AvailableFrom,
+                    Sensor: asset.Sensor,
+                    Unit: asset.Unit,
+                    Location: asset.Location,
+                    Capacity: asset.Capacity
+                }, {
+                    requestKey: null
+                });
+                console.log(res)
+                const newCR = {
+                    db_id: res.id,
+                    ...asset
+                } as Asset
+                newAssets.push(newCR)
+            }
+        })
+        return newAssets
     }
+
+    //
+
+    // const uploadAssetToBackend = async (asset: PreAsset | Asset) => {
+    //     const res = await pb.collection('Assets').create({
+    //         UniquePlatformID: asset.UniquePlatformID,
+    //         Description: asset.Description,
+    //         AvailableFrom: asset.AvailableFrom,
+    //         Sensor: asset.Sensor,
+    //         Unit: asset.Unit,
+    //         Location: asset.Location,
+    //         Capacity: asset.Capacity
+    //     });
+    //     console.log(res)
+    //     await fetchAssetsFromBackend()
+    //     return res.id
+    // }
 
     const savePlan = async (plan: PrePlan | Plan) => {
         const res = await pb.collection('Plans').create({
