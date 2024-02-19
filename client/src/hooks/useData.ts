@@ -37,6 +37,8 @@ export interface PreAsset {
     Unit: string,
     Location: string,
     Capacity: string
+    To_Collect?: string[],
+    Plans_containing_self?: string[],
 }
 
 export interface PreRequirement {
@@ -74,6 +76,7 @@ export interface PreRequirement {
     Reporting_Instructions?:
     string,
     Plans_containing_self?: string,
+    To_Be_Collected_By?: string,
 }
 
 
@@ -130,7 +133,8 @@ export const useData = () => {
                     Unit: item.Unit,
                     Location: item.Location,
                     Capacity: item.Capacity,
-                    Plans_containing_self: item.Plans_containing_self
+                    Plans_containing_self: item.Plans_containing_self,
+                    To_Collect: item.To_Collect
                 }
             })
             //console.log(data)
@@ -183,71 +187,14 @@ export const useData = () => {
                     RP_Remarks: item.RP_Remarks,
                     Reporting_Instructions: item.Reporting_Instructions,
                     ER_Remarks: item.ER_Remarks,
-                    Plans_containing_self: item.Plans_containing_self
+                    Plans_containing_self: item.Plans_containing_self,
+                    To_Be_Collected_By: item.To_Be_Collected_By
                 }
             })
             setAllRequirements(reqs_from_data)
         } catch (err) {
             console.log(err)
         }
-        // fetch(`${BackendAPIURL}/api/collections/Requirements/records`).then(res => res.json().then(data => {
-        //     setAllRequirements(data.items.map((item: any, index: number) => {
-        //         return {
-        //             db_id: item.id,
-        //             ID: index,
-        //             Operation: item.Operation,
-        //             Requester: item.Requester,
-        //             CR_Rank: item.CR_Rank,
-        //             Justification: item.Justification,
-        //             Location: item.Location,
-        //             Coordinates: item.Coordinates,
-        //             Target_ID: item.Target_ID,
-        //             Location_Category: item.Location_Category,
-        //             Coll_Start_Time: item.Coll_Start_Time,
-        //             Coll_End_Time: item.Coll_End_Time,
-        //             Sensor_Visibility: item.Sensor_Visibility,
-        //             LTIOV: item.LTIOV,
-        //             Required_Information: item.Required_Information,
-        //             Intel_Discipline: item.Intel_Discipline,
-        //             Required_Product: item.Required_Product,
-        //             ER_Report_Frequency: item.ER_Report_Frequency,
-        //             Recurrance: item.Recurrance,
-        //             RP_Remarks: item.RP_Remarks,
-        //             Reporting_Instructions: item.Reporting_Instructions,
-        //             ER_Remarks: item.ER_Remarks,
-        //         }
-        //     }))
-        //     console.log(data)
-        // })).catch(err => {
-        //     console.log(err)
-        //     setAllRequirements(EventRequirements.map((item: any, index: number) => {
-        //         return {
-        //             db_id: "",
-        //             ID: index,
-        //             Operation: item.Operation,
-        //             Requester: item.Requester,
-        //             CR_Rank: item.CR_Rank,
-        //             Justification: item.Justification,
-        //             Location: item.Location,
-        //             Coordinates: item.Coordinates,
-        //             Target_ID: item.Target_ID,
-        //             Location_Category: item.Location_Category,
-        //             Coll_Start_Time: item.Coll_Start_Time,
-        //             Coll_End_Time: item.Coll_End_Time,
-        //             Sensor_Visibility: item.Sensor_Visibility,
-        //             LTIOV: item.LTIOV,
-        //             Required_Information: item.Required_Information,
-        //             Intel_Discipline: item.Intel_Discipline,
-        //             Required_Product: item.Required_Product,
-        //             ER_Report_Frequency: item.ER_Report_Frequency,
-        //             Recurrance: item.Recurrance,
-        //             RP_Remarks: item.RP_Remarks,
-        //             Reporting_Instructions: item.Reporting_Instructions,
-        //             ER_Remarks: item.ER_Remarks,
-        //         }
-        //     }
-        //     ))
-        // })
     }
 
     const uploadCRtoBackend = async (crs: PreRequirement[] | Requirement[]) => {
@@ -278,7 +225,8 @@ export const useData = () => {
                     RP_Remarks: cr.RP_Remarks,
                     Reporting_Instructions: cr.Reporting_Instructions,
                     ER_Remarks: cr.ER_Remarks,
-                    Plans_containing_self: cr.Plans_containing_self
+                    Plans_containing_self: cr.Plans_containing_self,
+                    To_Be_Collected_By: cr.To_Be_Collected_By
                 });
                 console.log(res)
                 newcrs.push(cr as Requirement)
@@ -305,6 +253,8 @@ export const useData = () => {
                     RP_Remarks: cr.RP_Remarks,
                     Reporting_Instructions: cr.Reporting_Instructions,
                     ER_Remarks: cr.ER_Remarks,
+                    Plans_containing_self: cr.Plans_containing_self,
+                    To_Be_Collected_By: cr.To_Be_Collected_By
                 }, {
                     requestKey: null
                 });
@@ -335,7 +285,8 @@ export const useData = () => {
                     Unit: asset.Unit,
                     Location: asset.Location,
                     Capacity: asset.Capacity,
-                    Plans_containing_self: asset.Plans_containing_self
+                    Plans_containing_self: asset.Plans_containing_self,
+                    To_Collect: asset.To_Collect
                 });
                 console.log(res)
                 newAssets.push(asset as Asset)
@@ -347,7 +298,9 @@ export const useData = () => {
                     Sensor: asset.Sensor,
                     Unit: asset.Unit,
                     Location: asset.Location,
-                    Capacity: asset.Capacity
+                    Capacity: asset.Capacity,
+                    Plans_containing_self: asset.Plans_containing_self,
+                    To_Collect: asset.To_Collect
                 }, {
                     requestKey: null
                 });
@@ -361,23 +314,6 @@ export const useData = () => {
         })
         return newAssets
     }
-
-    //
-
-    // const uploadAssetToBackend = async (asset: PreAsset | Asset) => {
-    //     const res = await pb.collection('Assets').create({
-    //         UniquePlatformID: asset.UniquePlatformID,
-    //         Description: asset.Description,
-    //         AvailableFrom: asset.AvailableFrom,
-    //         Sensor: asset.Sensor,
-    //         Unit: asset.Unit,
-    //         Location: asset.Location,
-    //         Capacity: asset.Capacity
-    //     });
-    //     console.log(res)
-    //     await fetchAssetsFromBackend()
-    //     return res.id
-    // }
 
     const savePlan = async (plan: PrePlan | Plan) => {
         const res = await pb.collection('Plans').create({

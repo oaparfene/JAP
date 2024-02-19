@@ -43,10 +43,10 @@ function Home() {
       Unit: unit,
       AvailableFrom: availableFrom,
     }
-    const assetID = await uploadAssetToBackend(newAsset)
+    const assetID = await uploadAssetToBackend([newAsset])
 
     const fullNewAsset: Asset = {
-      db_id: assetID,
+      db_id: assetID[0].db_id,
       ...newAsset
     }
     await addAssets([fullNewAsset])

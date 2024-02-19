@@ -39,6 +39,8 @@ export interface Asset {
     Location: string,
     Capacity: string,
     Plans_containing_self?: string[],
+    To_Collect?: string[],
+
 }
 
 export interface Requirement {
@@ -77,6 +79,7 @@ export interface Requirement {
     Reporting_Instructions?:
     string,
     Plans_containing_self?: string[],
+    To_Be_Collected_By?: string,
 }
 
 export const usePlan = () => {

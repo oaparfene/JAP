@@ -100,7 +100,7 @@ export default function Home() {
                 sx={{ w: '200px', bgcolor: value.includes(allPlans[activePlanIndex]?.db_id) ? '#238823' : value.length > 0 ? '#ffbf00' : 'white' }}
                 multiple
                 value={value}
-                onChange={(e, node) => {
+                onChange={(e) => {
                     handlePlanSelectionChange(param.id, e?.target.value)
                 }}
                 input={<OutlinedInput id="select-multiple-chip" sx={{ w: '200px' }} />}

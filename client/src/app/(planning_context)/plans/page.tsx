@@ -5,7 +5,7 @@ import * as XLSX from 'xlsx';
 import { generateDataFromORBAT, crs } from "@/constants"
 import { useContext, useEffect } from "react"
 import { JAPContext } from "../../context"
-import { Alert, Box, Button, CircularProgress, IconButton, MenuItem, Snackbar, Stack, Tab, Tabs, Typography } from "@mui/material"
+import { Alert, Box, Button, Chip, CircularProgress, FormControl, IconButton, MenuItem, OutlinedInput, Select, Snackbar, Stack, Tab, Tabs, Typography } from "@mui/material"
 import { DataGrid, GridColDef, gridFilteredSortedRowIdsSelector, GridRowId, GridSelectionModel, GridToolbar, GridToolbarContainer, GridToolbarExportContainer, gridVisibleColumnFieldsSelector, useGridApiContext } from "@mui/x-data-grid"
 import { useState } from "react"
 import { Asset, Requirement } from "@/hooks/usePlan"
@@ -20,206 +20,13 @@ import dynamic from 'next/dynamic';
 import { toPng } from "html-to-image";
 import { useData } from "@/hooks/useData";
 import RefreshIcon from '@mui/icons-material/Refresh';
+import { Console } from "console";
 
 const ClientSideMapView = dynamic(() => import('../../../components/MapView'), {
     ssr: false,
 });
 
 
-const reqColumns: GridColDef[] = [
-    {
-        field: 'ID',
-        headerName: 'ID',
-        width: 20,
-    },
-    {
-        field: 'Operation',
-        headerName: 'Operation',
-        width: 200,
-    },
-    // {
-    //     field: 'Requester',
-    //     headerName: 'Requester',
-    //     width: 100,
-    // },
-    // {
-    //     field: 'CR_Rank',
-    //     headerName: 'CR Rank',
-    //     width: 20,
-    // },
-    // {
-    //     field: 'Justification',
-    //     headerName: 'Justification',
-    //     width: 200,
-    // },
-    // {
-    //     field: 'Status',
-    //     headerName: 'Status',
-    //     width: 120,
-    // },
-    {
-        field: 'Location',
-        headerName: 'Location',
-        width: 200,
-    },
-    // {
-    //     field: 'Shape',
-    //     headerName: 'Shape',
-    //     width: 100,
-    // },
-    // {
-    //     field: 'Location_Type',
-    //     headerName: 'Location Type',
-    //     width: 150,
-    // },
-    {
-        field: 'Coordinates',
-        headerName: 'Coordinates',
-        width: 200,
-    },
-    // {
-    //     field: 'Circle_Radius',
-    //     headerName: 'Circle Radius',
-    //     width: 100,
-    // },
-    // {
-    //     field: 'Target_ID',
-    //     headerName: 'Target ID',
-    //     width: 150,
-    // },
-    // {
-    //     field: 'Location_Category',
-    //     headerName: 'Location Category',
-    //     width: 200,
-    // },
-    // {
-    //     field: 'Coll_Start_Date',
-    //     headerName: 'Coll Start Date',
-    //     width: 100,
-    // },
-    // {
-    //     field: 'Coll_End_Date',
-    //     headerName: 'Coll End Date',
-    //     width: 100,
-    // },
-    {
-        field: 'Coll_Start_Time',
-        headerName: 'Coll Start Time',
-        width: 100,
-    },
-    {
-        field: 'Coll_End_Time',
-        headerName: 'Coll End Time',
-        width: 100,
-    },
-    // {
-    //     field: 'Recurrance',
-    //     headerName: 'Recurrance',
-    //     width: 100,
-    // },
-    // {
-    //     field: 'ISR_Role',
-    //     headerName: 'ISR Role',
-    //     width: 100,
-    // },
-    // {
-    //     field: 'Sensor_Visibility',
-    //     headerName: 'Sensor Visibility',
-    //     width: 100,
-    // },
-    {
-        field: 'Required_Information',
-        headerName: 'Required Information',
-        width: 700,
-    },
-    {
-        field: 'Intel_Discipline',
-        headerName: 'Intel Discipline',
-        width: 100,
-    },
-    // {
-    //     field: 'Exploitation_Requirement',
-    //     headerName: 'Exploitation Requirement',
-    //     width: 200,
-    // },
-    // {
-    //     field: 'ER_Remarks',
-    //     headerName: 'ER Remarks',
-    //     width: 200,
-    // },
-    // {
-    //     field: 'ER_Report_Frequency',
-    //     headerName: 'ER Report Frequency',
-    //     width: 200,
-    // },
-    {
-        field: 'Required_Product',
-        headerName: 'Required Product',
-        width: 200,
-    },
-    // {
-    //     field: 'RP_Remarks',
-    //     headerName: 'RP Remarks',
-    //     width: 200,
-    // },
-    // {
-    //     field: 'RP_Report_Frequency',
-    //     headerName: 'RP Report Frequency',
-    //     width: 200,
-    // },
-    {
-        field: 'LTIOV',
-        headerName: 'LTIOV',
-        width: 200,
-    },
-    // {
-    //     field: 'Latest_Report_Time',
-    //     headerName: 'Latest Report Time',
-    //     width: 200,
-    // },
-    // {
-    //     field: 'Reporting_Instructions',
-    //     headerName: 'Reporting Instructions',
-    //     width: 200,
-    // },
-];
-const assetColumns: GridColDef[] = [
-    {
-        field: 'UniquePlatformID',
-        headerName: 'ID',
-        width: 200,
-    },
-    {
-        field: 'Description',
-        headerName: 'Description',
-        width: 200,
-    },
-    {
-        field: 'Capacity',
-        headerName: 'Capacity',
-        width: 100,
-    },
-    {
-        field: 'Location',
-        headerName: 'Location',
-        width: 200,
-    },
-    {
-        field: 'Sensor',
-        headerName: 'Sensor',
-        width: 100,
-    },
-    {
-        field: 'Unit',
-        headerName: 'Unit',
-        width: 200,
-    },
-    {
-        field: 'AvailableFrom',
-        headerName: 'AvailableFrom',
-        width: 200,
-    },
-]
 
 interface TabPanelProps {
     children?: React.ReactNode;
@@ -255,7 +62,7 @@ function a11yProps(index: number) {
 }
 
 export default function Home() {
-    const { addFlightPlansToPlan, addTasksToPlan, allPlans, activePlanIndex, removeAssetsFromPlan, removeCRsFromPlan, setActivePlanIndex, newPlan } = useContext(JAPContext)
+    const { addFlightPlansToPlan, addTasksToPlan, allPlans, activePlanIndex, allRequirements, allAssets, removeAssetsFromPlan, removeCRsFromPlan, setActivePlanIndex, newPlan } = useContext(JAPContext)
     const { prepareAllocation, loading, allocation, flightPlans } = useMiniZinc()
     const [pageSize, setPageSize] = useState(10);
     const [selectedCRRows, setSelectedCRRows] = useState<GridSelectionModel>([])
@@ -265,16 +72,199 @@ export default function Home() {
     const [openCR, setOpenCR] = useState(false);
     const [openAsset, setOpenAsset] = useState(false);
     const [openAllocation, setOpenAllocation] = useState(false);
-    const { savePlan, fetchPlansFromBackend } = useData()
+    const { savePlan, fetchPlansFromBackend, fetchAssetsFromBackend, fetchCRsFromBackend } = useData()
 
     console.log('activePlanIndex', activePlanIndex)
     console.log('plans', allPlans)
 
-    const planReqs = allPlans[activePlanIndex] ? allPlans[activePlanIndex].requirements : []
-    const planAssets = allPlans[activePlanIndex] ? allPlans[activePlanIndex].assets : []
+    const [planReqs, setPlanReqs] = useState<Requirement[]>([])
+    const [planAssets, setPlanAssets] = useState<Asset[]>([])
+
+    //const planReqs = allPlans[activePlanIndex] ? allPlans[activePlanIndex].requirements : []
+    //const planAssets = allPlans[activePlanIndex] ? allPlans[activePlanIndex].assets : []
+
+    useEffect(() => {
+        if (allPlans[activePlanIndex]) {
+            setPlanReqs(allRequirements.filter((req: Requirement) => req.Plans_containing_self?.includes(allPlans[activePlanIndex].db_id)))
+            setPlanAssets(allAssets.filter((asset: Asset) => asset.Plans_containing_self?.includes(allPlans[activePlanIndex].db_id)))
+        } else {
+            setPlanReqs([])
+            setPlanAssets([])
+        }
+    }, [allRequirements, allPlans, activePlanIndex, allAssets])
 
     console.log('planReqs', planReqs)
     console.log('planAssets', planAssets)
+
+    const AssetSelectComponent = ({ param, value, options }: any) => {
+
+        const handleAssetSelectionChange = (rowId: any, _assetID: any) => {
+            console.log('rowId', rowId)
+            console.log('_assetID', _assetID)
+            setPlanReqs(planReqs.map((req) => {
+                if (req.ID === rowId) {
+                    setPlanAssets(planAssets.map((asset) => {
+                        if (asset.db_id === _assetID) {
+                            return {
+                                ...asset,
+                                To_Collect: [...asset.To_Collect as string[], req.db_id]
+                            }
+                            //return asset
+                        }
+                        return asset
+                    }))
+                    return {
+                        ...req,
+                        To_Be_Collected_By: _assetID
+                    }
+                }
+                return req
+            }
+            ))
+        };
+
+        return (
+            <FormControl fullWidth>
+                <Select
+                    value={param.value || ''} // Use the current value or an empty string if undefined
+                    onChange={(e) => {
+                        handleAssetSelectionChange(param.id, e?.target.value)
+                    }}
+                    displayEmpty
+                    inputProps={{ 'aria-label': 'Without label' }}
+                >
+                    <MenuItem value="">
+                        <em>None</em>
+                    </MenuItem>
+                    {options.map((option: Asset) => (
+                        <MenuItem key={option.db_id} value={option.db_id}>
+                            {option.UniquePlatformID}
+                        </MenuItem>
+                    ))}
+                </Select>
+            </FormControl>
+        );
+    }
+
+    const RequirementSelectComponent = ({ param, value, options }: any) => {
+    
+        const handleRequirementSelectionChange = (rowId: any, _reqID: any) => {
+            console.log('rowId', rowId)
+            console.log('_reqID', _reqID)
+            setPlanAssets((assetRows: any) =>
+            assetRows.map((row: any) =>
+                row.ID === rowId ? { ...row, To_Collect: _reqID } : row
+            )
+        );
+        }
+
+        return (
+            <Select
+                multiple
+                value={value}
+                onChange={(e) => {
+                    handleRequirementSelectionChange(param.id, e?.target.value)
+                }}
+                input={<OutlinedInput id="select-multiple-chip" sx={{ w: '200px' }} />}
+                renderValue={(selected) => (
+                    <div>
+                        {selected.map((value: any) => (
+                            <Chip key={value} label={allRequirements.find(req => req.db_id === value)?.ID} />
+                        ))}
+                    </div>
+                )}
+            >
+                {options.map((option: Requirement) => (
+                    <MenuItem key={option.db_id} value={option.db_id}>
+                        {option.ID}
+                    </MenuItem>
+                ))}
+            </Select>
+        )
+
+    }
+
+    const reqColumns: GridColDef[] = [
+        {
+            field: 'ID',
+            headerName: 'ID',
+            width: 20,
+        },
+        {
+            field: 'To_Be_Collected_By',
+            headerName: 'To be Collected by',
+            width: 150,
+            renderCell: (params) => <AssetSelectComponent param={params}
+                value={params.value}
+                options={planAssets} />
+        },
+        {
+            field: 'Intel_Discipline',
+            headerName: 'Intel Discipline',
+            width: 100,
+        },
+        {
+            field: 'Coordinates',
+            headerName: 'Coordinates',
+            width: 200,
+        },
+        {
+            field: 'Required_Information',
+            headerName: 'Required Information',
+            width: 700,
+        },
+        {
+            field: 'Required_Product',
+            headerName: 'Required Product',
+            width: 200,
+        },
+        {
+            field: 'Coll_Start_Time',
+            headerName: 'Coll Start Time',
+            width: 150,
+        },
+        {
+            field: 'Coll_End_Time',
+            headerName: 'Coll End Time',
+            width: 150,
+        },
+        {
+            field: 'LTIOV',
+            headerName: 'LTIOV',
+            width: 200,
+        },
+    ];
+
+    const assetColumns: GridColDef[] = [
+        {
+            field: 'UniquePlatformID',
+            headerName: 'ID',
+            width: 150,
+        },
+        {
+            field: 'To_Collect',
+            headerName: 'To Collect',
+            width: 150,
+            renderCell: (params) => <RequirementSelectComponent param={params}
+                value={params.value}
+                options={planReqs} />
+        },
+        {
+            field: 'Sensor',
+            headerName: 'Sensor',
+            width: 100,
+        },
+        {
+            field: 'Location',
+            headerName: 'Coordinates',
+            width: 200,
+        },
+        {
+            field: 'AvailableFrom',
+            headerName: 'AvailableFrom',
+            width: 200,
+        },
+    ]
 
     const data_main: any = [
         [
@@ -304,8 +294,8 @@ export default function Home() {
         })
     }
 
-    console.log('data_main', data_main)
-    console.log('data_inv', data_inv)
+    // console.log('data_main', data_main)
+    // console.log('data_inv', data_inv)
 
     const location_data = [] as [string, [number, number]][]
     const flight_data = [] as [string, [number, number][]][]
@@ -325,30 +315,30 @@ export default function Home() {
         })
     }
 
-    console.log('location_data', location_data)
-    console.log('flight_data', flight_data)
+    // console.log('location_data', location_data)
+    // console.log('flight_data', flight_data)
 
-    const removeReqsFromPlanHandler = () => {
-        if (!allPlans[activePlanIndex]) return
-        if (selectedCRRows.length === 0) return
-        const CRsToRemove = selectedCRRows.map((id) => planReqs.find(asset => asset.ID.toString() === id)) as Requirement[]
-        console.log('CRsToRemove', CRsToRemove)
-        removeCRsFromPlan(CRsToRemove)
-        setAmountOfCRsRemoved(selectedCRRows.length)
-        setOpenCR(true);
-        setSelectedCRRows([])
-    }
+    // const removeReqsFromPlanHandler = () => {
+    //     if (!allPlans[activePlanIndex]) return
+    //     if (selectedCRRows.length === 0) return
+    //     const CRsToRemove = selectedCRRows.map((id) => planReqs.find(asset => asset.ID.toString() === id)) as Requirement[]
+    //     console.log('CRsToRemove', CRsToRemove)
+    //     removeCRsFromPlan(CRsToRemove)
+    //     setAmountOfCRsRemoved(selectedCRRows.length)
+    //     setOpenCR(true);
+    //     setSelectedCRRows([])
+    // }
 
-    const removeAssetsFromPlanHandler = () => {
-        if (!allPlans[activePlanIndex]) return
-        if (selectedAssetRows.length === 0) return
-        const assetsToRemove = selectedAssetRows.map((id) => planAssets.find(asset => asset.ID.toString() === id)) as Asset[]
-        console.log('assetsToRemove', assetsToRemove)
-        removeAssetsFromPlan(assetsToRemove)
-        setAmountOfAssetsRemoved(selectedAssetRows.length)
-        setOpenAsset(true);
-        setSelectedAssetRows([])
-    }
+    // const removeAssetsFromPlanHandler = () => {
+    //     if (!allPlans[activePlanIndex]) return
+    //     if (selectedAssetRows.length === 0) return
+    //     const assetsToRemove = selectedAssetRows.map((id) => planAssets.find(asset => asset.ID.toString() === id)) as Asset[]
+    //     console.log('assetsToRemove', assetsToRemove)
+    //     removeAssetsFromPlan(assetsToRemove)
+    //     setAmountOfAssetsRemoved(selectedAssetRows.length)
+    //     setOpenAsset(true);
+    //     setSelectedAssetRows([])
+    // }
 
     const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
         if (reason === 'clickaway') {
@@ -421,6 +411,8 @@ export default function Home() {
 
                         <IconButton onClick={() => {
                             fetchPlansFromBackend();
+                            fetchAssetsFromBackend();
+                            fetchCRsFromBackend();
                         }}>
                             <RefreshIcon />
                         </IconButton>
@@ -431,61 +423,77 @@ export default function Home() {
                     }}>Download Plan</Button>
                 </Box>
 
+                <Box sx={{
+                    display: 'flex',
+                    flexDir: 'row',
+                    justifyContent: 'space-between',
+                    mb: 3
+                }}>
+                    <Box sx={{
+                        width: '47%',
+                    }}>
 
-                <Box sx={{ display: 'flex', flexDir: 'row', justifyContent: 'space-between' }}>
+                        <Box sx={{ display: 'flex', flexDir: 'row', justifyContent: 'space-between' }}>
 
-                    <Typography
-                        variant="h6"
-                        component="h6"
-                        sx={{ textAlign: 'left', mt: 0, mb: 3 }}
-                    >Plan Requirements:</Typography>
+                            <Typography
+                                variant="h6"
+                                component="h6"
+                                sx={{ textAlign: 'left', mt: 0, mb: 3 }}
+                            >Plan Requirements:</Typography>
 
-                    <Button variant='contained' sx={{ mb: 2 }} onClick={removeReqsFromPlanHandler}>Remove Selected Requirements</Button>
+                            {/* <Button variant='contained' sx={{ mb: 2 }} onClick={removeReqsFromPlanHandler}>Remove Selected Requirements</Button> */}
 
-                </Box>
+                        </Box>
 
-                <Box sx={{ height: 650, width: '100%', mb: 8 }}>
-                    <DataGrid
-                        rows={planReqs}
-                        getRowId={(row) => row.ID}
-                        columns={reqColumns}
-                        onSelectionModelChange={(newSelectedRows) => {
-                            setSelectedCRRows(newSelectedRows)
-                        }}
-                        selectionModel={selectedCRRows}
-                        rowsPerPageOptions={[5, 10, 20]}
-                        pageSize={pageSize}
-                        checkboxSelection
-                        components={{ Toolbar: CustomReqsToolbar }}
-                    />
-                </Box>
+                        <Box sx={{ height: 650, width: '100%', mb: 8 }}>
+                            <DataGrid
+                                rows={planReqs}
+                                getRowId={(row) => row.ID}
+                                columns={reqColumns}
+                                onSelectionModelChange={(newSelectedRows) => {
+                                    setSelectedCRRows(newSelectedRows)
+                                }}
+                                selectionModel={selectedCRRows}
+                                rowsPerPageOptions={[5, 10, 20]}
+                                pageSize={pageSize}
+                                checkboxSelection={false}
+                                components={{ Toolbar: CustomReqsToolbar }}
+                            />
+                        </Box>
+                    </Box>
 
-                <Box sx={{ display: 'flex', flexDir: 'row', justifyContent: 'space-between' }}>
+                    <Box sx={{
+                        width: '47%',
+                    }}>
 
-                    <Typography
-                        variant="h6"
-                        component="h6"
-                        sx={{ textAlign: 'left', mt: 0, mb: 3 }}
-                    >Plan Assets:</Typography>
+                        <Box sx={{ display: 'flex', flexDir: 'row', justifyContent: 'space-between' }}>
 
-                    <Button variant='contained' sx={{ mb: 2 }} onClick={removeAssetsFromPlanHandler}>Remove Selected Assets</Button>
+                            <Typography
+                                variant="h6"
+                                component="h6"
+                                sx={{ textAlign: 'left', mt: 0, mb: 3 }}
+                            >Plan Assets:</Typography>
 
-                </Box>
+                            {/* <Button variant='contained' sx={{ mb: 2 }} onClick={removeAssetsFromPlanHandler}>Remove Selected Assets</Button> */}
 
-                <Box sx={{ height: 650, width: '100%' }}>
-                    <DataGrid
-                        rows={planAssets}
-                        getRowId={(row) => row.ID}
-                        columns={assetColumns}
-                        onSelectionModelChange={(newSelectedRows) => {
-                            setSelectedAssetRows(newSelectedRows)
-                        }}
-                        selectionModel={selectedAssetRows}
-                        rowsPerPageOptions={[5, 10, 20]}
-                        pageSize={pageSize}
-                        checkboxSelection
-                        components={{ Toolbar: CustomAssetsToolbar }}
-                    />
+                        </Box>
+
+                        <Box sx={{ height: 650, width: '100%' }}>
+                            <DataGrid
+                                rows={planAssets}
+                                getRowId={(row) => row.ID}
+                                columns={assetColumns}
+                                onSelectionModelChange={(newSelectedRows) => {
+                                    setSelectedAssetRows(newSelectedRows)
+                                }}
+                                selectionModel={selectedAssetRows}
+                                rowsPerPageOptions={[5, 10, 20]}
+                                pageSize={pageSize}
+                                checkboxSelection={false}
+                                components={{ Toolbar: CustomAssetsToolbar }}
+                            />
+                        </Box>
+                    </Box>
                 </Box>
 
                 <Stack direction='row' justifyContent='end' sx={{ mt: 2 }}>
