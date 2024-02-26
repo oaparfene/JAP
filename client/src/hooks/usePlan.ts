@@ -230,7 +230,7 @@ export const usePlan = () => {
         var tempPlans = allPlans
         var plan = tempPlans[activePlanIndex]
         const updatedPlan = {
-            db_id: plan.db_id,
+            db_id: plan?.db_id || "temp",
             name: plan.name,
             assets: plan.assets,
             requirements: plan.requirements,
@@ -245,7 +245,7 @@ export const usePlan = () => {
         var tempPlans = allPlans
         var plan = tempPlans[activePlanIndex]
         const updatedPlan = {
-            db_id: plan.db_id,
+            db_id: plan?.db_id || "temp",
             name: plan.name,
             assets: plan.assets,
             requirements: plan.requirements,

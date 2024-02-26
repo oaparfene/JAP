@@ -17,6 +17,7 @@ import { CustomAssetsToolbar } from "@/components/ExcelExport"
 import dynamic from 'next/dynamic';
 import { useData } from "@/hooks/useData"
 import RefreshIcon from '@mui/icons-material/Refresh';
+import ISRPOSTUREUpload from "@/components/ISRPOSTUREUpload"
 
 const ClientSideMapView = dynamic(() => import('../../../components/MapView'), {
     ssr: false,
@@ -77,7 +78,7 @@ export default function Home() {
     const [rows, setRows] = useState<Asset[]>([])
     const [selectedPlanName, setSelectedPlanName] = useState(allPlans[activePlanIndex]?.name || '')
     const [openSelectPlan, setOpenSelectPlan] = useState(false)
-    
+
     useEffect(() => {
         setRows(allAssets)
     }, [allAssets])
@@ -85,7 +86,7 @@ export default function Home() {
     const handlePlanSelectionChange = (rowId: any, _planID: any) => {
         setRows((prevRows: any) =>
             prevRows.map((row: any) =>
-                row.ID === rowId ? { ...row, Plans_containing_self:_planID } : row
+                row.ID === rowId ? { ...row, Plans_containing_self: _planID } : row
             )
         );
     };
@@ -174,7 +175,7 @@ export default function Home() {
             // loop over all requirements that have been edited
             if (!allAssets.includes(row)) {
                 console.log('row changed: ', row)
-                
+
                 uploadAssetToBackend([row])
             }
 
@@ -279,9 +280,10 @@ export default function Home() {
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: "start", width: 'full' }}>
 
-                <Button variant='contained' sx={{ mb: 2, mr: 2 }} onClick={saveAssetsHandler}>Save</Button>
-                <Button variant='contained' sx={{ mb: 2, ml: 2 }} onClick={addMultipleSelectionToPlanHandler}>Add to</Button>
-                    </Box>
+                    <Button variant='contained' sx={{ mb: 2, mr: 2 }} onClick={saveAssetsHandler}>Save</Button>
+                    <Button variant='contained' sx={{ mb: 2, ml: 2 }} onClick={addMultipleSelectionToPlanHandler}>Add to</Button>
+                    <ISRPOSTUREUpload></ISRPOSTUREUpload>
+                </Box>
                 {/* <Button variant='contained' sx={{ mb: 2 }} onClick={addToPlanHandler}>Add Selection to Plan</Button> */}
 
                 <Box sx={{ height: 650, width: '100%' }}>
@@ -343,9 +345,9 @@ export default function Home() {
                             {allPlans.map((plan, index) => (
                                 <MenuItem key={index} value={plan?.name}>{plan?.name}</MenuItem>
                             ))}
-                                <MenuItem value={"[REMOVE FROM ALL PLANS]"}>{"[REMOVE FROM ALL PLANS]"}</MenuItem>
+                            <MenuItem value={"[REMOVE FROM ALL PLANS]"}>{"[REMOVE FROM ALL PLANS]"}</MenuItem>
                         </Select>
-                        <Box sx={{ display: "flex", justifyContent: "space-between", width: "100%", gap: "8px"}}>
+                        <Box sx={{ display: "flex", justifyContent: "space-between", width: "100%", gap: "8px" }}>
 
                             <Button variant='outlined' onClick={
                                 () => {
@@ -355,17 +357,17 @@ export default function Home() {
                                 Cancel
                             </Button>
                             <Button variant='contained'
-                            onClick={() => {
-                                if (selectedPlanName === "[REMOVE FROM ALL PLANS]") {
-                                    selectedRows.map((rowId) => handlePlanSelectionChange(rowId, ""))
+                                onClick={() => {
+                                    if (selectedPlanName === "[REMOVE FROM ALL PLANS]") {
+                                        selectedRows.map((rowId) => handlePlanSelectionChange(rowId, ""))
 
-                                } else {
-                                    selectedRows.map((rowId) => handlePlanSelectionChange(rowId, allPlans.find(plan => plan.name === selectedPlanName)!.db_id))
-                                }
-                                setOpenSelectPlan(false)
-                                setSelectedRows([])
-                                //setOpen(true)
-                            }}>
+                                    } else {
+                                        selectedRows.map((rowId) => handlePlanSelectionChange(rowId, allPlans.find(plan => plan.name === selectedPlanName)!.db_id))
+                                    }
+                                    setOpenSelectPlan(false)
+                                    setSelectedRows([])
+                                    //setOpen(true)
+                                }}>
                                 Confirm
                             </Button>
                         </Box>

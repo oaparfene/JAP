@@ -368,14 +368,14 @@ export default function Home() {
     useEffect(() => {
         if (allocation.length > 0) {
             console.log('allocation', allocation)
-            addTasksToPlan(allocation)
+            //addTasksToPlan(allocation)
         }
     }, [allocation])
 
     useEffect(() => {
         if (flightPlans.length > 0) {
             console.log('flightPlans', flightPlans)
-            addFlightPlansToPlan(flightPlans)
+            //addFlightPlansToPlan(flightPlans)
         }
     }, [flightPlans])
 
