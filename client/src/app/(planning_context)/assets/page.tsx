@@ -164,6 +164,11 @@ export default function Home() {
             headerName: 'AvailableFrom',
             width: 200,
         },
+        {
+            field: 'AvailableUntil',
+            headerName: 'AvailableUntil',
+            width: 200,
+        },
     ]
 
     //const rows = allAssets.filter((asset) => !allPlans[activePlanIndex]?.assets?.find(el => el.ID === asset.ID))
@@ -278,10 +283,12 @@ export default function Home() {
                     </IconButton>
 
                 </Box>
-                <Box sx={{ display: 'flex', justifyContent: "start", width: 'full' }}>
+                <Box sx={{ display: 'flex', justifyContent: "space-between", width: 'full' }}>
 
-                    <Button variant='contained' sx={{ mb: 2, mr: 2 }} onClick={saveAssetsHandler}>Save</Button>
-                    <Button variant='contained' sx={{ mb: 2, ml: 2 }} onClick={addMultipleSelectionToPlanHandler}>Add to</Button>
+                    <Box>
+                        <Button variant='contained' sx={{ mb: 2, mr: 2 }} onClick={saveAssetsHandler}>Save</Button>
+                        <Button variant='contained' sx={{ mb: 2, ml: 2 }} onClick={addMultipleSelectionToPlanHandler}>Add to</Button>
+                    </Box>
                     <ISRPOSTUREUpload></ISRPOSTUREUpload>
                 </Box>
                 {/* <Button variant='contained' sx={{ mb: 2 }} onClick={addToPlanHandler}>Add Selection to Plan</Button> */}

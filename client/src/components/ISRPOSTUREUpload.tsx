@@ -2,10 +2,10 @@ import React, { useContext, useState } from 'react'
 import { styled } from '@mui/material/styles';
 import Button from '@mui/material/Button';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import { Requirement } from '../hooks/usePlan';
+import { Asset, Requirement } from '../hooks/usePlan';
 import { JAPContext } from '../app/context';
 import { Modal, Box, Stack, Typography, TextField, IconButton } from '@mui/material';
-import { PreRequirement, useData } from '../hooks/useData';
+import { PreAsset, PreRequirement, useData } from '../hooks/useData';
 import * as xlsx from 'xlsx';
 import Divider from '@mui/material/Divider';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
@@ -85,47 +85,47 @@ function stringToDate(dateStr: string): Date | null {
     }
 }
 
-function ISRPOSTUREUpload() {
-    const { allRequirements, addCRs } = useContext(JAPContext)
-    const [openNewCRL, setOpenNewCRL] = useState(false);
-    const [activeCR, setActiveCR] = useState<Requirement | null>(null);
-    const { uploadCRtoBackend } = useData()
-    const [CRsToUpload, setCRsToUpload] = useState<PreRequirement[]>([])
-    const [reviewIndex, setReviewIndex] = useState(0)
-
-
-    function mapToPreRequirement(data: any): PreRequirement {
-        return {
-            ID: parseInt(data['#']),
-            Operation: data.Operation,
-            Requester: data.Requester,
-            Coordinates: data.Coordinates,
-            Shape: data.Shape,
-            Status: data.Status,
-            Justification: data.Justification,
-            Location: data['Location (Target Name)'],
-            Coll_Start_Time: data['Coll Start Time'].toString(),
-            Coll_End_Time: data['Coll End Time'].toString(),
-            Coll_End_Date: data['Coll End Date'].toString(),
-            Coll_Start_Date: data['Coll Start Date'].toString(),
-            ER_Remarks: data['ER Remarks'],
-            ER_Report_Frequency: data['ER Report Frequency'],
-            Exploitation_Requirement: data['Exploitation Requirement (ER)'],
-            ISR_Role: data['ISR Role'],
-            Intel_Discipline: data['Intel Discipline'],
-            Latest_Report_Time: data['Latest Report Time'],
-            Location_Category: data['Location Category'],
-            Location_Type: data['Location Type'],
-            RP_Remarks: data['RP Remarks'],
-            RP_Report_Frequency: data['RP Report Frequency'],
-            Reporting_Instructions: data['Reporting Instructions'],
-            Required_Information: data['Required Information'],
-            Required_Product: data['Required Product (RP)'],
-            Sensor_Visibility: data['Sensor Visibility'],
-            Target_ID: data['Target ID/ BE #'],
-            LTIOV: data.LTIOV.toString(),
-        };
+function transformAssetDetails(assetDetail: AssetDetail) {
+    // Use the stringToDate function to convert the dayColumn to a Date object
+    const date = stringToDate(assetDetail.dayColumn);
+    if (!date) {
+        return null; // If the date is invalid, return null
     }
+
+    try {
+        // Parse the availability start and end times
+        const startTime = parseTime(assetDetail.availabilityStart, new Date(date));
+        const endTime = parseTime(assetDetail.availabilityEnd, new Date(date));
+
+        // Return a new object with the modified availability start and end times as Date objects
+        return {
+            ...assetDetail,
+            availabilityStart: startTime,
+            availabilityEnd: endTime,
+        };
+    } catch (error) {
+        console.error("Error transforming AssetDetails:", error);
+        return null;
+    }
+}
+
+function parseTime(timeStr: string, date: Date): Date | null {
+    const hours = parseInt(timeStr.substring(0, 2), 10);
+    const minutes = parseInt(timeStr.substring(2, 4), 10);
+
+    if (isNaN(hours) || isNaN(minutes)) {
+        return null;
+    }
+
+    date.setHours(hours, minutes, 0, 0); // Set the hours and minutes for the date
+    return date;
+}
+
+function ISRPOSTUREUpload() {
+    const [openNewAssetLits, setOpenNewAssetList] = useState(false);
+    const { uploadAssetToBackend } = useData()
+    const [AssetsToUpload, setAssetsToUpload] = useState<PreAsset[]>([])
+    const [reviewIndex, setReviewIndex] = useState(0)
 
     const processExcelUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -143,7 +143,6 @@ function ISRPOSTUREUpload() {
                     // console.log(json_object);
                 })
 
-                const worksheet = workbook.Sheets["POSTURE"];
                 var PostureData: any = xlsx.utils.sheet_to_json(workbook.Sheets["POSTURE"]);
                 console.log("XL_row_object: ", PostureData)
                 var assetList: AssetDetail[] = []
@@ -181,26 +180,32 @@ function ISRPOSTUREUpload() {
                     })
 
                 }
-                console.log("assetList: ", assetList)
+                console.log("assetList pre transform: ", assetList)
 
-                // XL_row_object = XL_row_object.filter((row: any) => {
-                //     return Object.keys(row).length > 3
-                // })
-                // console.log("XL_row_object: ", XL_row_object)
-                // XL_row_object.shift()
-                // console.log("XL_row_object: ", XL_row_object)
-                // const columnObject = XL_row_object.shift()
-                // console.log("columnObject: ", columnObject)
-                // const finalRows = XL_row_object.map((row: any) => {
-                //     const newRow: any = {}
-                //     Object.keys(row).forEach((key: string) => {
-                //         // @ts-ignore
-                //         newRow[columnObject[key]] = row[key].toString()
-                //     })
-                //     return mapToPreRequirement(newRow)
-                // }
-                // )
-                // console.log("finalRows: ", finalRows)
+                const transformedAssetList = assetList.map(each => transformAssetDetails(each)).filter(each => each !== null)
+
+                console.log("transformedAssetList: ", transformedAssetList)
+
+                const finalRows = transformedAssetList.map((each, index) => {
+                    return {
+                        UniquePlatformID: each?.asset,
+                        ID: index,
+                        Description: each?.asset,
+                        AvailableFrom: each?.availabilityStart,
+                        AvailableUntil: each?.availabilityEnd,
+                        Unit: each?.area + " ISR Unit",
+                        Capacity: "24",
+                        Plans_containing_self: [],
+                        To_Collect: [],
+                        Location: "61.042497N 28.1418E",
+                        Sensor: "EO, IR, FMV",
+                    } as PreAsset
+                })
+
+
+                setAssetsToUpload(finalRows)
+                setOpenNewAssetList(true)
+
                 // setCRsToUpload(finalRows)
                 // setOpenNewCRL(true)
                 //const added_CRs = await uploadCRtoBackend(finalRows)
@@ -219,6 +224,84 @@ function ISRPOSTUREUpload() {
                 Upload ISR Posture
                 <VisuallyHiddenInput type="file" onChange={processExcelUpload} accept={".csv, application/vnd.ms-excel.sheet.macroEnabled.12, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"} />
             </Button>
+
+            <Modal
+                open={openNewAssetLits}
+                onClose={() => setOpenNewAssetList(false)}
+            >
+                <Box sx={style}>
+
+                    <Typography variant="h5" component="h5">
+                        Review CRL:
+                    </Typography>
+
+                    <Box sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                    }}>
+                        <IconButton disabled={reviewIndex === 0} onClick={() => {
+                            if (reviewIndex > 0) setReviewIndex(reviewIndex - 1)
+                        }}>
+                            <ChevronLeftIcon />
+                        </IconButton>
+                        <Typography variant="h6" component="h2" sx={{ textAlign: "center" }}>
+                            {reviewIndex + 1} / {AssetsToUpload.length}
+                        </Typography>
+                        <IconButton disabled={reviewIndex + 1 === AssetsToUpload.length} onClick={() => {
+                            if (reviewIndex + 1 < AssetsToUpload.length) setReviewIndex(reviewIndex + 1)
+                        }}>
+                            <ChevronRightIcon />
+                        </IconButton>
+                    </Box>
+                    <Divider sx={{ mb: 2 }} />
+
+                    <Stack gap={2}>
+
+                        <Typography variant="body1" component="p">
+                            Name: {AssetsToUpload[reviewIndex]?.UniquePlatformID}
+                        </Typography>
+                        <Typography variant="body1" component="p">
+                            Unit: {AssetsToUpload[reviewIndex]?.Unit}
+                        </Typography>
+                        <Typography variant="body1" component="p">
+                            Sensor: {AssetsToUpload[reviewIndex]?.Sensor}
+                        </Typography>
+                        <Typography variant="body1" component="p">
+                            Start: {AssetsToUpload[reviewIndex]?.AvailableFrom.toLocaleString()}
+                        </Typography>
+                        <Typography variant="body1" component="p">
+                            End: {AssetsToUpload[reviewIndex]?.AvailableUntil?.toLocaleString()}
+                        </Typography>
+                        <Typography variant="body1" component="p">
+                            Coords: {AssetsToUpload[reviewIndex]?.Location}
+                        </Typography>
+
+                    </Stack>
+
+                    <Divider sx={{ mt: 2, mb: 2 }} />
+
+
+                    <Box sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+
+                    }}>
+                        <Button variant='outlined' sx={{ mb: 2 }} onClick={() => {
+                            setOpenNewAssetList(false)
+                        }}>Cancel</Button>
+                        <Button variant='contained' sx={{ mb: 2 }} onClick={() => {
+                            if (AssetsToUpload.length === 0) return
+                            uploadAssetToBackend(AssetsToUpload)
+                            setOpenNewAssetList(false)
+                        }}>Upload CR</Button>
+
+                    </Box>
+
+
+                </Box>
+            </Modal>
         </div>
     )
 }

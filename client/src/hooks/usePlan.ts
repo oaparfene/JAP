@@ -34,6 +34,7 @@ export interface Asset {
     UniquePlatformID: string,
     Description: string,
     AvailableFrom: Date,
+    AvailableUntil?: Date,
     Sensor: string,
     Unit: string,
     Location: string,
