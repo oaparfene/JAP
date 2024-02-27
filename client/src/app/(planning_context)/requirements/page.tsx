@@ -510,10 +510,10 @@ export default function Home() {
                             <Button variant='contained'
                             onClick={() => {
                                 if (selectedPlanName === "[REMOVE FROM ALL PLANS]") {
-                                    selectedRows.map((rowId) => handlePlanSelectionChange(rowId, ""))
+                                    selectedRows.map((rowId) => handlePlanSelectionChange(rowId, []))
 
                                 } else {
-                                    selectedRows.map((rowId) => handlePlanSelectionChange(rowId, allPlans.find(plan => plan.name === selectedPlanName)!.db_id))
+                                    selectedRows.map((rowId) => handlePlanSelectionChange(rowId, [allPlans.find(plan => plan.name === selectedPlanName)!.db_id]))
                                 }
                                 setOpenSelectPlan(false)
                                 setSelectedRows([])

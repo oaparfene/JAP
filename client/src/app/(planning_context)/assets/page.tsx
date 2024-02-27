@@ -320,7 +320,7 @@ export default function Home() {
 
             <Snackbar open={open} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
                 <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
-                    Added {amountOfAssetsAdded} Assets to Plan {allPlans[activePlanIndex]?.name}
+                    Your changes have been Saved!
                 </Alert>
             </Snackbar>
 
@@ -366,10 +366,10 @@ export default function Home() {
                             <Button variant='contained'
                                 onClick={() => {
                                     if (selectedPlanName === "[REMOVE FROM ALL PLANS]") {
-                                        selectedRows.map((rowId) => handlePlanSelectionChange(rowId, ""))
+                                        selectedRows.map((rowId) => handlePlanSelectionChange(rowId, []))
 
                                     } else {
-                                        selectedRows.map((rowId) => handlePlanSelectionChange(rowId, allPlans.find(plan => plan.name === selectedPlanName)!.db_id))
+                                        selectedRows.map((rowId) => handlePlanSelectionChange(rowId, [allPlans.find(plan => plan.name === selectedPlanName)!.db_id]))
                                     }
                                     setOpenSelectPlan(false)
                                     setSelectedRows([])

@@ -1,11 +1,13 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import { exec } from 'child_process';
+import cors from 'cors';	
 import fs from 'fs';
 
 const app = express();
 const PORT = 5000;
 
+app.use(cors());
 app.use(bodyParser.text());
 
 app.listen(PORT, () => console.log(`Server running on: http://localhost:${PORT}`));

@@ -108,6 +108,7 @@ function EXCELReqUpload() {
                         // @ts-ignore
                         newRow[columnObject[key]] = row[key].toString()
                     })
+                    console.log("newRow: ", newRow)
                     return mapToPreRequirement(newRow)
                 }
                 )
