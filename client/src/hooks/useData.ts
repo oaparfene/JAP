@@ -95,14 +95,14 @@ export const useData = () => {
                 return {
                     db_id: item.id,
                     name: item.name,
-                    assets: item.expand?.assets.map((asset: any, _index: number) => {
+                    assets: item.expand?.assets?.map((asset: any, _index: number) => {
                         return {
                             ID: _index,
                             AvailableFrom: new Date(asset.AvailableFrom),
                             ...asset
                         }
                     }) || [],
-                    requirements: item.expand?.requirements.map((cr: any, _index: number) => {
+                    requirements: item.expand?.requirements?.map((cr: any, _index: number) => {
                         return {
                             ID: _index,
                             ...cr
