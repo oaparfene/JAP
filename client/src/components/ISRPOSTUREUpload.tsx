@@ -232,7 +232,7 @@ function ISRPOSTUREUpload() {
                 <Box sx={style}>
 
                     <Typography variant="h5" component="h5">
-                        Review CRL:
+                        Review Assets:
                     </Typography>
 
                     <Box sx={{

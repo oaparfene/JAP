@@ -417,7 +417,7 @@ export default function Home() {
                         variant="h5"
                         component="h5"
                         sx={{ textAlign: 'left', mt: 0 }}
-                    >Collection Requirements</Typography>
+                    >Collection Tasks</Typography>
 
                     <IconButton onClick={() => {
                         fetchCRsFromBackend();
@@ -455,11 +455,11 @@ export default function Home() {
             </CustomTabPanel>
 
             <CustomTabPanel value={tabValue} index={1}>
-                <SynchMatrixView title="Requirement Collection Time View" data={[data_main]}></SynchMatrixView>
+                <SynchMatrixView title="Task Collection Time View" data={[data_main]}></SynchMatrixView>
             </CustomTabPanel>
 
             <CustomTabPanel value={tabValue} index={2}>
-                <ClientSideMapView title="Requirement Location View" locationData={location_data} pathData={[]}></ClientSideMapView>
+                <ClientSideMapView title="Task Location View" locationData={location_data} pathData={[]}></ClientSideMapView>
             </CustomTabPanel>
 
             <Snackbar open={open} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>

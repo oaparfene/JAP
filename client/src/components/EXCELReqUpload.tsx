@@ -128,7 +128,7 @@ function EXCELReqUpload() {
     return (
         <div>
             <Button component="label" variant="contained" startIcon={<CloudUploadIcon />}>
-                Upload CRL Spreadsheet
+                Upload CTL Spreadsheet
                 <VisuallyHiddenInput type="file" onChange={processExcelUpload} accept={".csv, application/vnd.ms-excel.sheet.macroEnabled.12, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"} />
             </Button>
             {/* todo: add confirmation with amount of reqs detected */}
@@ -139,7 +139,7 @@ function EXCELReqUpload() {
                 <Box sx={style}>
 
                     <Typography variant="h5" component="h5">
-                        Review CRL:
+                        Review CTL:
                     </Typography>
 
                     <Box sx={{
@@ -177,7 +177,7 @@ function EXCELReqUpload() {
                         <Typography variant="body1" component="p">
                             Coords: {CRsToUpload[reviewIndex]?.Coordinates}
                         </Typography>
-                        <Typography variant="body1" component="p">
+                        {/* <Typography variant="body1" component="p">
                             Start Time: {CRsToUpload[reviewIndex]?.Coll_Start_Time}
                         </Typography>
                         <Typography variant="body1" component="p">
@@ -185,7 +185,7 @@ function EXCELReqUpload() {
                         </Typography>
                         <Typography variant="body1" component="p">
                             LTIOV: {CRsToUpload[reviewIndex]?.LTIOV}
-                        </Typography>
+                        </Typography> */}
                         <Typography variant="body1" component="p">
                             Required Info: {CRsToUpload[reviewIndex]?.Required_Information}
                         </Typography>

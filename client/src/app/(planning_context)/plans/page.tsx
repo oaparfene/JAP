@@ -407,7 +407,7 @@ export default function Home() {
                             variant="h5"
                             component="h5"
                             sx={{ textAlign: 'left', mt: 0 }}
-                        >Collection Plans</Typography>
+                        >Collection Task Allocation</Typography>
 
                         <IconButton onClick={() => {
                             fetchPlansFromBackend();
@@ -439,7 +439,7 @@ export default function Home() {
                                 variant="h6"
                                 component="h6"
                                 sx={{ textAlign: 'left', mt: 0, mb: 3 }}
-                            >Plan Requirements:</Typography>
+                            >Plan Tasks:</Typography>
 
                             {/* <Button variant='contained' sx={{ mb: 2 }} onClick={removeReqsFromPlanHandler}>Remove Selected Requirements</Button> */}
 
@@ -525,7 +525,7 @@ export default function Home() {
 
             <Snackbar open={openCR} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
                 <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
-                    Removed {amountOfCRsRemoved} Requirements from Plan {allPlans[activePlanIndex]?.name}
+                    Removed {amountOfCRsRemoved} Tasks from Plan {allPlans[activePlanIndex]?.name}
                 </Alert>
             </Snackbar>
             <Snackbar open={openAsset} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
